@@ -1,0 +1,367 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 2000;
+  animation: fadeIn 0.2s;
+}
+
+.modal {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.3s;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.closeBtn {
+  font-size: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.closeBtn:hover {
+  background-color: var(--bg-secondary);
+}
+
+.machineInfo {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.machinePhoto {
+  width: 60px;
+  height: 60px;
+  background-color: var(--map-placeholder);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--text-secondary);
+}
+
+.machineDetails {
+  flex: 1;
+}
+
+.machineAddress {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.machineStatus {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  display: inline-block;
+}
+
+.statusWorking {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--status-working);
+}
+
+.statusMaintenance {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: var(--status-maintenance);
+}
+
+.statusProblem {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--status-problem);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.select {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.select.error {
+  border-color: var(--status-problem);
+}
+
+.textarea {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.photoUpload {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.photoUpload:hover {
+  border-color: var(--primary);
+}
+
+.photoUpload input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.uploadIcon {
+  font-size: 32px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.uploadText {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.uploadHint {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.photoPreview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.previewImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.previewInfo {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.previewDelete {
+  color: var(--status-problem);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.previewDelete:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.phoneField {
+  padding: 16px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.phoneField .inputGroup {
+  margin-bottom: 0;
+}
+
+.errorText {
+  color: var(--status-problem);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.submitBtn {
+  background-color: var(--primary);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.successMessage {
+  text-align: center;
+  padding: 32px 20px;
+}
+
+.successIcon {
+  font-size: 64px;
+  color: var(--status-working);
+  margin-bottom: 16px;
+}
+
+.successTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.successText {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.successActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.successBtn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.primaryBtn {
+  background-color: var(--primary);
+  color: white;
+}
+
+.primaryBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+.secondaryBtn {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.secondaryBtn:hover {
+  background-color: var(--border-color);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .machineInfo {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .successActions {
+    flex-direction: column;
+  }
+}

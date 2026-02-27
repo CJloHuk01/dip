@@ -1,0 +1,25 @@
+.marker {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.marker:hover {
+  transform: scale(1.2);
+}
+
+.working {
+  background-color: var(--status-working);
+}
+
+.maintenance {
+  background-color: var(--status-maintenance);
+}
+
+.problem {
+  background-color: var(--status-problem);
+}

@@ -1,0 +1,119 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.loginBtn {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.loginBtn:hover {
+  background-color: var(--bg-secondary);
+}
+
+.registerBtn {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background-color: var(--primary);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.registerBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+.profileBtn {
+  padding: 6px 16px 6px 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.profileBtn:hover {
+  background-color: var(--border-color);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logoutBtn {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--status-problem);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.logoutBtn:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: 16px 24px;
+  }
+  
+  .logo {
+    font-size: 24px;
+  }
+  
+  .loginBtn,
+  .registerBtn,
+  .logoutBtn {
+    padding: 10px 16px;
+    font-size: 16px;
+  }
+  
+  .profileBtn {
+    padding: 6px 20px 6px 6px;
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .header {
+    padding: 16px 32px;
+  }
+}

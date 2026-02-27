@@ -1,0 +1,532 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  width: 100%;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.backButton:hover {
+  color: var(--primary);
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .profileGrid {
+    grid-template-columns: 350px 1fr;
+  }
+}
+
+/* Левая колонка - профиль */
+.profileCard {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  height: fit-content;
+}
+
+.avatarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.avatar:hover .avatarOverlay {
+  opacity: 1;
+}
+
+.avatarInput {
+  display: none;
+}
+
+.userName {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.userRole {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.userStats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.infoSection {
+  margin-bottom: 24px;
+}
+
+.infoTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.infoIcon {
+  width: 24px;
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.infoContent {
+  flex: 1;
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.infoValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.editBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.editBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Режим редактирования */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.input {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.editActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.saveBtn {
+  flex: 1;
+  padding: 12px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Правая колонка - заявки */
+.complaintsCard {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.complaintsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.complaintsTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.complaintsFilter {
+  display: flex;
+  gap: 8px;
+}
+
+.filterBtn {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.filterBtn:hover,
+.filterBtn.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+.complaintsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.complaintItem {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.complaintItem:hover {
+  transform: translateX(4px);
+}
+
+.complaintMain {
+  flex: 1;
+}
+
+.complaintAddress {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.complaintMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.complaintType {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.complaintDate {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.complaintComment {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background-color: var(--bg-primary);
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.complaintStatus {
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  height: fit-content;
+}
+
+.statusNew {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #FFC107;
+}
+
+.statusInProgress {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196F3;
+}
+
+.statusResolved {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.statusRejected {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #F44336;
+}
+
+.complaintArrow {
+  color: var(--text-secondary);
+  font-size: 16px;
+  align-self: center;
+}
+
+.noComplaints {
+  text-align: center;
+  padding: 48px 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+
+.noComplaintsIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* Модалка деталей заявки */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 2000;
+  animation: fadeIn 0.2s;
+}
+
+.modal {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.3s;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modalClose {
+  font-size: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.modalClose:hover {
+  background-color: var(--bg-secondary);
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modalLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.modalValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.modalDivider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 8px 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .profileGrid {
+    gap: 16px;
+  }
+  
+  .complaintsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .complaintItem {
+    grid-template-columns: 1fr;
+  }
+  
+  .complaintStatus {
+    width: fit-content;
+  }
+}

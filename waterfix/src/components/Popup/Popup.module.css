@@ -1,0 +1,118 @@
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.detailsBtn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.detailsBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+.complaintBtn {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--status-problem);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.complaintBtn:hover {
+  background-color: #d32f2f;
+}
+
+/* Остальные стили остаются без изменений */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: fadeIn 0.2s;
+}
+
+.popup {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 300px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.2s;
+}
+
+.address {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.statusWorking {
+  composes: status;
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--status-working);
+}
+
+.statusMaintenance {
+  composes: status;
+  background-color: rgba(255, 193, 7, 0.1);
+  color: var(--status-maintenance);
+}
+
+.statusProblem {
+  composes: status;
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--status-problem);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .popup {
+    width: 90%;
+    max-width: none;
+  }
+}

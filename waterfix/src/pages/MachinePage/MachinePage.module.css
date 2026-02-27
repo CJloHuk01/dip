@@ -1,0 +1,322 @@
+.mapPreview {
+  height: 250px;
+  background-color: var(--map-placeholder);
+  border-radius: 12px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.mapPreview:hover {
+  opacity: 0.9;
+}
+
+.mapPreviewText {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background-color: var(--bg-card);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Стили для карты Яндекса */
+.mapPreview :global(.ymaps-2-1-2-map) {
+  border-radius: 12px;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mapPreview :global(.ymaps-2-1-2-controls__control) {
+  display: none; /* Скрываем элементы управления на превью */
+}
+
+/* Остальные стили остаются без изменений */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  width: 100%;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.backButton:hover {
+  color: var(--primary);
+}
+
+.machineCard {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 24px;
+}
+
+.machineImage {
+  width: 100%;
+  height: 300px;
+  background-color: var(--map-placeholder);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 48px;
+}
+
+@media (min-width: 768px) {
+  .machineImage {
+    height: 400px;
+  }
+}
+
+.machineStatus {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.statusWorking {
+  color: var(--status-working);
+}
+
+.statusMaintenance {
+  color: var(--status-maintenance);
+}
+
+.statusProblem {
+  color: var(--status-problem);
+}
+
+.machineInfo {
+  padding: 24px;
+}
+
+.machineTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.machineAddress {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .infoGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+}
+
+.infoIcon {
+  font-size: 24px;
+  color: var(--primary);
+}
+
+.infoContent {
+  flex: 1;
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.infoValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.complaintBtn {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--status-problem);
+  color: white;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  margin-bottom: 32px;
+}
+
+.complaintBtn:hover {
+  background-color: #d32f2f;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle span {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.complaintsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.complaintItem {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.complaintItem:hover {
+  transform: translateX(4px);
+}
+
+.complaintLeft {
+  flex: 1;
+}
+
+.complaintType {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.complaintDate {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.complaintRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.complaintStatus {
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusNew {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #FFC107;
+}
+
+.statusInProgress {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196F3;
+}
+
+.statusResolved {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.statusRejected {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #F44336;
+}
+
+.complaintArrow {
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+.noComplaints {
+  text-align: center;
+  padding: 48px 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.noComplaintsIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-secondary);
+}
+
+.error {
+  text-align: center;
+  padding: 48px;
+  color: var(--status-problem);
+}
