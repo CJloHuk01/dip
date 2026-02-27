@@ -10,7 +10,6 @@ interface AuthModalProps {
   onAuthSuccess?: () => void;
 }
 
-// Интерфейс для пользователя
 interface User {
   id: string;
   name: string;
@@ -31,18 +30,15 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string>('');
 
-  // Загружаем пользователей из localStorage
   const getUsers = (): User[] => {
     const users = localStorage.getItem('users');
     return users ? JSON.parse(users) : [];
   };
 
-  // Сохраняем пользователей в localStorage
   const saveUsers = (users: User[]) => {
     localStorage.setItem('users', JSON.stringify(users));
   };
 
-  // Сбрасываем режим при открытии
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
@@ -124,7 +120,7 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
         phone: user.phone,
         isAuth: true
       }));
-      onClose(); // Закрываем модалку сразу
+      onClose(); 
       if (onAuthSuccess) onAuthSuccess();
     } else {
       setServerError('Неверный email или пароль');
@@ -158,7 +154,7 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
       isAuth: true
     }));
 
-    onClose(); // Закрываем модалку сразу
+    onClose(); 
     if (onAuthSuccess) onAuthSuccess();
   };
 
@@ -190,7 +186,7 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
     };
     
     localStorage.setItem('currentUser', JSON.stringify(demoUser));
-    onClose(); // Закрываем модалку сразу
+    onClose(); 
     if (onAuthSuccess) onAuthSuccess();
   };
 

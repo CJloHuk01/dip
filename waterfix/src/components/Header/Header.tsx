@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthModal from '../AuthModal/AuthModal';
+import { useTheme } from '../../hooks/useTheme';
 import styles from './Header.module.css';
 
-type AuthMode = 'login' | 'register' | 'success';
+type AuthMode = 'login' | 'register';
 
 interface User {
   id: string;
@@ -19,8 +20,8 @@ function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { theme, toggleTheme } = useTheme();
 
-  // Загружаем пользователя при монтировании
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
     if (userStr) {
@@ -55,7 +56,6 @@ function Header() {
     }
   };
 
-  // Получаем инициалы для аватара
   const getInitials = () => {
     if (!currentUser?.name) return '👤';
     const names = currentUser.name.split(' ');
@@ -68,11 +68,21 @@ function Header() {
   return (
     <>
       <header className={styles.header}>
-        <a href="/" className={styles.logo}>
-          WaterFix
-        </a>
+        <div className={styles.leftSection}>
+          <a href="/" className={styles.logo}>
+            WaterFix
+          </a>
+        </div>
         
-        <div className={styles.buttons}>
+        <div className={styles.rightSection}>
+          <button 
+            className={styles.themeToggle}
+            onClick={toggleTheme}
+            aria-label="Переключить тему"
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+
           {currentUser ? (
             <>
               <button 
@@ -113,6 +123,7 @@ function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
         onAuthSuccess={handleAuthSuccess}
       />
     </>

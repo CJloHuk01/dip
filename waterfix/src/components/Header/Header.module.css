@@ -7,6 +7,18 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .logo {
   font-size: 20px;
   font-weight: 700;
@@ -14,10 +26,23 @@
   text-decoration: none;
 }
 
-.buttons {
+.themeToggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
-  gap: 12px;
   align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.2s;
+  margin-right: 4px;
+}
+
+.themeToggle:hover {
+  background-color: var(--border-color);
+  transform: scale(1.1);
 }
 
 .loginBtn {
@@ -109,6 +134,12 @@
   .profileBtn {
     padding: 6px 20px 6px 6px;
     font-size: 16px;
+  }
+  
+  .themeToggle {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
   }
 }
 
