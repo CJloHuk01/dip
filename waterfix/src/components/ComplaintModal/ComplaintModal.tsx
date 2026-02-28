@@ -22,7 +22,6 @@ function ComplaintModal({ isOpen, onClose, machine }: ComplaintModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  // Сбрасываем форму при открытии нового окна
   useEffect(() => {
     if (isOpen) {
       setStep('form');
@@ -62,7 +61,6 @@ function ComplaintModal({ isOpen, onClose, machine }: ComplaintModalProps) {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Проверка размера файла (максимум 5 МБ)
       if (file.size > 5 * 1024 * 1024) {
         alert('Файл слишком большой. Максимальный размер 5 МБ');
         return;
@@ -93,12 +91,10 @@ function ComplaintModal({ isOpen, onClose, machine }: ComplaintModalProps) {
       newErrors.problemType = 'Выберите тип проблемы';
     }
     
-    // Проверяем авторизацию по localStorage
     const isAuth = localStorage.getItem('isAuth') === 'true';
     if (!isAuth && !formData.phone) {
       newErrors.phone = 'Введите телефон для связи';
     } else if (!isAuth && formData.phone) {
-      // Простая валидация телефона (не менее 10 цифр)
       const phoneDigits = formData.phone.replace(/\D/g, '');
       if (phoneDigits.length < 10) {
         newErrors.phone = 'Введите корректный номер телефона';
@@ -118,7 +114,6 @@ function ComplaintModal({ isOpen, onClose, machine }: ComplaintModalProps) {
       return;
     }
 
-    // Отправка заявки
     console.log('Новая заявка:', {
       machineId: machine.id,
       machineAddress: machine.address,
@@ -130,7 +125,6 @@ function ComplaintModal({ isOpen, onClose, machine }: ComplaintModalProps) {
       } : null
     });
 
-    // Показываем успех
     setStep('success');
   };
 

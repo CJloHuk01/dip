@@ -65,7 +65,7 @@ const MOCK_COMPLAINTS: Complaint[] = [
 function ProfilePage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [complaints, setComplaints] = useState<Complaint[]>(MOCK_COMPLAINTS);
+  const [complaints] = useState<Complaint[]>(MOCK_COMPLAINTS);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -75,7 +75,6 @@ function ProfilePage() {
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
   const [filter, setFilter] = useState<'all' | 'new' | 'inProgress' | 'resolved' | 'rejected'>('all');
 
-  // Загружаем пользователя
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
     if (!userStr) {
@@ -198,7 +197,6 @@ function ProfilePage() {
           </button>
 
           <div className={styles.profileGrid}>
-            {/* Левая колонка - Профиль */}
             <div className={styles.profileCard}>
               <div className={styles.avatarSection}>
                 <div className={styles.avatar}>
@@ -304,7 +302,6 @@ function ProfilePage() {
               )}
             </div>
 
-            {/* Правая колонка - Заявки */}
             <div className={styles.complaintsCard}>
               <div className={styles.complaintsHeader}>
                 <h2 className={styles.complaintsTitle}>Мои заявки</h2>
@@ -385,7 +382,6 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* Модалка деталей заявки */}
       {selectedComplaint && (
         <div className={styles.modalOverlay} onClick={() => setSelectedComplaint(null)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

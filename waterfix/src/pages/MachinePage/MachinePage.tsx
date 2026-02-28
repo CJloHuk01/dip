@@ -4,14 +4,12 @@ import Header from '../../components/Header/Header';
 import ComplaintModal from '../../components/ComplaintModal/ComplaintModal';
 import styles from './MachinePage.module.css';
 
-// Объявляем типы для Яндекс.Карт
 declare global {
   interface Window {
     ymaps: any;
   }
 }
 
-// Временные данные (потом будут приходить с сервера)
 const MOCK_MACHINES: Record<number, any> = {
   1: {
     id: 1,
@@ -108,7 +106,6 @@ function MachinePage() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
-  // Загрузка данных о водомате
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
@@ -119,11 +116,9 @@ function MachinePage() {
     }, 500);
   }, [id]);
 
-  // Загрузка карты
   useEffect(() => {
     if (!machine || mapInstanceRef.current) return;
 
-    // Проверяем, не загружена ли уже карта
     if (window.ymaps) {
       window.ymaps.ready(initMap);
       return;
@@ -159,7 +154,6 @@ function MachinePage() {
         controls: ['zoomControl']
       });
 
-      // Добавляем метку
       const placemark = new window.ymaps.Placemark(machine.coordinates, {
         hintContent: machine.address,
         balloonContent: `
@@ -231,7 +225,6 @@ function MachinePage() {
   };
 
   const handleMapClick = () => {
-    // Открываем полноэкранную карту или переходим на главную с выделенным объектом
     navigate(`/?center=${machine.coordinates[0]},${machine.coordinates[1]}&zoom=17`);
   };
 

@@ -30,7 +30,6 @@
   pointer-events: none;
 }
 
-/* Стили для карты Яндекса */
 .mapPreview :global(.ymaps-2-1-2-map) {
   border-radius: 12px;
   width: 100% !important;
@@ -38,10 +37,9 @@
 }
 
 .mapPreview :global(.ymaps-2-1-2-controls__control) {
-  display: none; /* Скрываем элементы управления на превью */
+  display: none; 
 }
 
-/* Остальные стили остаются без изменений */
 .page {
   min-height: 100vh;
   display: flex;

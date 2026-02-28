@@ -5,7 +5,6 @@ import ComplaintModal from '../ComplaintModal/ComplaintModal';
 import styles from './Map.module.css';
 import type { Marker } from '../../types';
 
-// Реальные адреса водоматов в Оренбурге
 const MOCK_MARKERS: Marker[] = [
   { 
     id: 1, 
@@ -84,7 +83,6 @@ function Map() {
 
   const handleDetails = (marker: Marker) => {
     console.log('Переход на страницу водомата:', marker);
-    // Здесь будет переход на страницу водомата
     setSelectedMarker(null);
   };
 

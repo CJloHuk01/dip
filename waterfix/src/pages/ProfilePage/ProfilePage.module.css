@@ -39,7 +39,6 @@
   }
 }
 
-/* Левая колонка - профиль */
 .profileCard {
   background-color: var(--bg-card);
   border-radius: 16px;
@@ -202,7 +201,6 @@
   background-color: var(--primary-hover);
 }
 
-/* Режим редактирования */
 .editForm {
   display: flex;
   flex-direction: column;
@@ -261,7 +259,6 @@
   font-weight: 500;
 }
 
-/* Правая колонка - заявки */
 .complaintsCard {
   background-color: var(--bg-card);
   border-radius: 16px;
@@ -409,7 +406,6 @@
   opacity: 0.5;
 }
 
-/* Модалка деталей заявки */
 .modalOverlay {
   position: fixed;
   top: 0;
