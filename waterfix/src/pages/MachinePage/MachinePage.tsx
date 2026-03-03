@@ -3,279 +3,115 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import ComplaintModal from '../../components/ComplaintModal/ComplaintModal';
 import styles from './MachinePage.module.css';
+import { machinesApi, type Machine } from '../../api/api';
 
 declare global {
-  interface Window {
-    ymaps: any;
-  }
+  interface Window { ymaps: any; }
 }
-
-const MOCK_MACHINES: Record<number, any> = {
-  1: {
-    id: 1,
-    address: "ул. Советская, 48 (ост. Драмтеатр)",
-    status: "working",
-    coordinates: [51.768, 55.097],
-    photo: null,
-    workingHours: "Круглосуточно",
-    phone: "+7 (3532) 77-77-77",
-    paymentMethods: ["Наличные", "Карта", "QR-код"],
-    waterPrice: "5 ₽/литр",
-    lastMaintenance: "2024-02-15",
-    complaints: [
-      {
-        id: 101,
-        type: "money",
-        typeLabel: "Зажевало деньги",
-        date: "2024-02-20",
-        status: "resolved",
-        comment: "Вернули деньги через 10 минут"
-      },
-      {
-        id: 102,
-        type: "water",
-        typeLabel: "Не наливает воду",
-        date: "2024-02-18",
-        status: "inProgress",
-        comment: "Мастер уже в пути"
-      }
-    ]
-  },
-  2: {
-    id: 2,
-    address: "пр-т Победы, 156 (ТРК Север)",
-    status: "maintenance",
-    coordinates: [51.813, 55.137],
-    photo: null,
-    workingHours: "08:00 - 23:00",
-    phone: "+7 (3532) 88-88-88",
-    paymentMethods: ["Карта", "QR-код"],
-    waterPrice: "6 ₽/литр",
-    lastMaintenance: "2024-02-10",
-    complaints: [
-      {
-        id: 103,
-        type: "change",
-        typeLabel: "Не даёт сдачу",
-        date: "2024-02-19",
-        status: "new",
-        comment: "Купюры принимает, сдачу не выдаёт"
-      }
-    ]
-  },
-  3: {
-    id: 3,
-    address: "ул. Терешковой, 255 (ост. Телецентр)",
-    status: "problem",
-    coordinates: [51.791, 55.115],
-    photo: null,
-    workingHours: "Круглосуточно",
-    phone: "+7 (3532) 99-99-99",
-    paymentMethods: ["Наличные", "Карта"],
-    waterPrice: "5 ₽/литр",
-    lastMaintenance: "2024-02-01",
-    complaints: [
-      {
-        id: 104,
-        type: "screen",
-        typeLabel: "Сломан экран",
-        date: "2024-02-21",
-        status: "new",
-        comment: "Ничего не видно на экране"
-      },
-      {
-        id: 105,
-        type: "money",
-        typeLabel: "Зажевало деньги",
-        date: "2024-02-15",
-        status: "rejected",
-        comment: "Проверьте купюры"
-      }
-    ]
-  }
-};
 
 function MachinePage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [machine, setMachine] = useState<any>(null);
+  const [machine, setMachine] = useState<Machine & { complaints?: any[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
+    if (!id) return;
     setLoading(true);
-    setTimeout(() => {
-      if (id && MOCK_MACHINES[parseInt(id)]) {
-        setMachine(MOCK_MACHINES[parseInt(id)]);
-      }
-      setLoading(false);
-    }, 500);
+    machinesApi.getById(id)
+      .then(data => setMachine({ ...data, complaints: [] }))
+      .catch(() => setMachine(null))
+      .finally(() => setLoading(false));
   }, [id]);
+
+  // Загружаем заявки для этого водомата
+  useEffect(() => {
+    if (!id || !machine) return;
+    fetch(`http://localhost:5000/api/complaints?machineId=${id}&limit=10`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setMachine(prev => prev ? { ...prev, complaints: data.data || [] } : prev);
+        }
+      })
+      .catch(() => {});
+  }, [id, machine?.id]);
 
   useEffect(() => {
     if (!machine || mapInstanceRef.current) return;
 
-    if (window.ymaps) {
-      window.ymaps.ready(initMap);
-      return;
-    }
+    if (window.ymaps) { window.ymaps.ready(initMap); return; }
 
     const script = document.createElement('script');
     script.src = 'https://api-maps.yandex.ru/2.1/?apikey=74d33273-ff0c-43df-a5f5-f2ad8e1848a1&lang=ru_RU';
     script.async = true;
     document.body.appendChild(script);
+    script.onload = () => window.ymaps.ready(initMap);
+    script.onerror = () => setMapError('Не удалось загрузить карту');
 
-    script.onload = () => {
-      window.ymaps.ready(initMap);
-    };
-
-    script.onerror = () => {
-      setMapError('Не удалось загрузить карту');
-    };
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
+    return () => { if (script.parentNode) script.parentNode.removeChild(script); };
   }, [machine]);
 
   const initMap = () => {
     if (!mapRef.current || !window.ymaps || !machine) return;
-
     try {
+      const coords = [machine.latitude, machine.longitude];
       mapInstanceRef.current = new window.ymaps.Map(mapRef.current, {
-        center: machine.coordinates,
-        zoom: 16,
-        controls: ['zoomControl']
+        center: coords, zoom: 16, controls: ['zoomControl']
       });
-
-      const placemark = new window.ymaps.Placemark(machine.coordinates, {
+      const placemark = new window.ymaps.Placemark(coords, {
         hintContent: machine.address,
-        balloonContent: `
-          <div style="padding: 8px;">
-            <strong>${machine.address}</strong><br>
-            ${getStatusText(machine.status)}
-          </div>
-        `
+        balloonContent: `<div style="padding:8px"><strong>${machine.address}</strong><br>${getStatusText(machine.status)}</div>`
       }, {
-        preset: `islands#${machine.status === 'working' ? 'green' : machine.status === 'maintenance' ? 'yellow' : 'red'}Icon`,
-        iconColor: machine.status === 'working' ? '#4CAF50' : machine.status === 'maintenance' ? '#FFC107' : '#F44336'
+        preset: `islands#${machine.status === 'working' ? 'green' : machine.status === 'maintenance' ? 'yellow' : 'red'}Icon`
       });
-
       mapInstanceRef.current.geoObjects.add(placemark);
-    } catch (error) {
-      console.error('Ошибка при создании карты:', error);
+    } catch (e) {
       setMapError('Ошибка при создании карты');
     }
   };
 
-  const handleGoBack = () => {
-    navigate('/');
-  };
-
-  const handleOpenComplaint = () => {
-    setIsComplaintModalOpen(true);
-  };
-
-  const handleCloseComplaint = () => {
-    setIsComplaintModalOpen(false);
-  };
-
-  const getStatusText = (status: string) => {
-    const statusMap = {
-      working: '✅ Работает',
-      maintenance: '🟡 На обслуживании',
-      problem: '❌ Есть проблема'
-    };
-    return statusMap[status as keyof typeof statusMap] || status;
-  };
-
-  const getStatusClass = (status: string) => {
-    const classMap = {
-      working: styles.statusWorking,
-      maintenance: styles.statusMaintenance,
-      problem: styles.statusProblem
-    };
-    return classMap[status as keyof typeof classMap] || '';
-  };
-
-  const getComplaintStatusText = (status: string) => {
-    const statusMap = {
-      new: 'Новая',
-      inProgress: 'В работе',
-      resolved: 'Решена',
-      rejected: 'Отклонена'
-    };
-    return statusMap[status as keyof typeof statusMap] || status;
-  };
-
-  const getComplaintStatusClass = (status: string) => {
-    const classMap = {
-      new: styles.statusNew,
-      inProgress: styles.statusInProgress,
-      resolved: styles.statusResolved,
-      rejected: styles.statusRejected
-    };
-    return classMap[status as keyof typeof classMap] || '';
-  };
-
-  const handleMapClick = () => {
-    navigate(`/?center=${machine.coordinates[0]},${machine.coordinates[1]}&zoom=17`);
-  };
+  const getStatusText = (status: string) => ({ working: '✅ Работает', maintenance: '🟡 На обслуживании', problem: '❌ Есть проблема' }[status] || status);
+  const getStatusClass = (status: string) => ({ working: styles.statusWorking, maintenance: styles.statusMaintenance, problem: styles.statusProblem }[status] || '');
+  const getComplaintStatusText = (status: string) => ({ new: 'Новая', inProgress: 'В работе', resolved: 'Решена', rejected: 'Отклонена' }[status] || status);
+  const getComplaintStatusClass = (status: string) => ({ new: styles.statusNew, inProgress: styles.statusInProgress, resolved: styles.statusResolved, rejected: styles.statusRejected }[status] || '');
 
   if (loading) {
-    return (
-      <>
-        <Header />
-        <div className={styles.page}>
-          <div className={styles.container}>
-            <div className={styles.loading}>Загрузка информации...</div>
-          </div>
-        </div>
-      </>
-    );
+    return (<><Header /><div className={styles.page}><div className={styles.container}><div className={styles.loading}>Загрузка информации...</div></div></div></>);
   }
 
   if (!machine) {
     return (
-      <>
-        <Header />
-        <div className={styles.page}>
-          <div className={styles.container}>
-            <div className={styles.error}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>😕</div>
-              <h2>Водомат не найден</h2>
-              <button 
-                className={styles.backButton}
-                onClick={handleGoBack}
-                style={{ marginTop: '24px' }}
-              >
-                ← Вернуться на карту
-              </button>
-            </div>
-          </div>
+      <><Header />
+      <div className={styles.page}><div className={styles.container}>
+        <div className={styles.error}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>😕</div>
+          <h2>Водомат не найден</h2>
+          <button className={styles.backButton} onClick={() => navigate('/')} style={{ marginTop: '24px' }}>← Вернуться на карту</button>
         </div>
-      </>
+      </div></div></>
     );
   }
+
+  const complaints = machine.complaints || [];
 
   return (
     <>
       <Header />
       <div className={styles.page}>
         <div className={styles.container}>
-          <button className={styles.backButton} onClick={handleGoBack}>
-            ← Вернуться на карту
-          </button>
+          <button className={styles.backButton} onClick={() => navigate('/')}>← Вернуться на карту</button>
 
           <div className={styles.machineCard}>
             <div className={styles.machineImage}>
-              <span>📷</span>
+              {machine.photoUrl
+                ? <img src={`http://localhost:5000${machine.photoUrl}`} alt="Водомат" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span>📷</span>
+              }
               <div className={`${styles.machineStatus} ${getStatusClass(machine.status)}`}>
                 {getStatusText(machine.status)}
               </div>
@@ -283,9 +119,7 @@ function MachinePage() {
 
             <div className={styles.machineInfo}>
               <h1 className={styles.machineTitle}>Водомат</h1>
-              <div className={styles.machineAddress}>
-                <span>📍</span> {machine.address}
-              </div>
+              <div className={styles.machineAddress}><span>📍</span> {machine.address}</div>
 
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
@@ -295,7 +129,6 @@ function MachinePage() {
                     <div className={styles.infoValue}>{machine.workingHours}</div>
                   </div>
                 </div>
-
                 <div className={styles.infoItem}>
                   <span className={styles.infoIcon}>📞</span>
                   <div className={styles.infoContent}>
@@ -303,17 +136,13 @@ function MachinePage() {
                     <div className={styles.infoValue}>{machine.phone}</div>
                   </div>
                 </div>
-
                 <div className={styles.infoItem}>
                   <span className={styles.infoIcon}>💳</span>
                   <div className={styles.infoContent}>
                     <div className={styles.infoLabel}>Способы оплаты</div>
-                    <div className={styles.infoValue}>
-                      {machine.paymentMethods.join(' • ')}
-                    </div>
+                    <div className={styles.infoValue}>{machine.paymentMethods.join(' • ')}</div>
                   </div>
                 </div>
-
                 <div className={styles.infoItem}>
                   <span className={styles.infoIcon}>💧</span>
                   <div className={styles.infoContent}>
@@ -323,28 +152,22 @@ function MachinePage() {
                 </div>
               </div>
 
-              <button 
-                className={styles.complaintBtn}
-                onClick={handleOpenComplaint}
-              >
+              <button className={styles.complaintBtn} onClick={() => setIsComplaintModalOpen(true)}>
                 ⚠️ Сообщить о проблеме
               </button>
 
               <div className={styles.sectionTitle}>
-                Последние жалобы
-                <span>Всего: {machine.complaints.length}</span>
+                Последние жалобы <span>Всего: {complaints.length}</span>
               </div>
 
-              {machine.complaints.length > 0 ? (
+              {complaints.length > 0 ? (
                 <div className={styles.complaintsList}>
-                  {machine.complaints.map((complaint: any) => (
+                  {complaints.map((complaint: any) => (
                     <div key={complaint.id} className={styles.complaintItem}>
                       <div className={styles.complaintLeft}>
-                        <div className={styles.complaintType}>
-                          {complaint.typeLabel}
-                        </div>
+                        <div className={styles.complaintType}>{complaint.typeLabel}</div>
                         <div className={styles.complaintDate}>
-                          {new Date(complaint.date).toLocaleDateString('ru-RU')}
+                          {new Date(complaint.createdAt).toLocaleDateString('ru-RU')}
                         </div>
                       </div>
                       <div className={styles.complaintRight}>
@@ -360,36 +183,22 @@ function MachinePage() {
                 <div className={styles.noComplaints}>
                   <div className={styles.noComplaintsIcon}>✅</div>
                   <div>Жалоб пока нет</div>
-                  <div style={{ fontSize: '14px', marginTop: '8px' }}>
-                    Будьте первым, кто сообщит о проблеме
-                  </div>
+                  <div style={{ fontSize: '14px', marginTop: '8px' }}>Будьте первым, кто сообщит о проблеме</div>
                 </div>
               )}
 
-              <div className={styles.sectionTitle}>
-                Расположение
-              </div>
-              
+              <div className={styles.sectionTitle}>Расположение</div>
+
               {mapError ? (
                 <div className={styles.mapPreview} style={{ flexDirection: 'column', gap: '8px' }}>
-                  <span>❌</span>
-                  <span>{mapError}</span>
+                  <span>❌</span><span>{mapError}</span>
                 </div>
               ) : (
-                <div 
-                  ref={mapRef} 
-                  className={styles.mapPreview}
-                  onClick={handleMapClick}
-                  style={{ cursor: 'pointer' }}
-                >
+                <div ref={mapRef} className={styles.mapPreview} style={{ cursor: 'pointer' }}>
                   {!mapInstanceRef.current && (
-                    <div style={{ textAlign: 'center' }}>
-                      <span>🗺️ Загрузка карты...</span>
-                    </div>
+                    <div style={{ textAlign: 'center' }}><span>🗺️ Загрузка карты...</span></div>
                   )}
-                  <div className={styles.mapPreviewText}>
-                    {machine.address}
-                  </div>
+                  <div className={styles.mapPreviewText}>{machine.address}</div>
                 </div>
               )}
             </div>
@@ -397,15 +206,10 @@ function MachinePage() {
         </div>
       </div>
 
-      <ComplaintModal 
+      <ComplaintModal
         isOpen={isComplaintModalOpen}
-        onClose={handleCloseComplaint}
-        machine={{
-          id: machine.id,
-          address: machine.address,
-          status: machine.status,
-          coordinates: machine.coordinates
-        }}
+        onClose={() => setIsComplaintModalOpen(false)}
+        machine={{ id: machine.id as any, address: machine.address, status: machine.status, coordinates: [machine.latitude, machine.longitude] }}
       />
     </>
   );

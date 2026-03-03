@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import RealMap from '../RealMap/RealMap';
+import { useNavigate } from 'react-router-dom';
 import Popup from '../Popup/Popup';
 import ComplaintModal from '../ComplaintModal/ComplaintModal';
 import styles from './Map.module.css';
@@ -7,6 +8,7 @@ import type { Marker } from '../../types';
 import { machinesApi } from '../../api/api';
 
 function Map() {
+  const navigate = useNavigate();
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
   const [isComplaintModalOpen, setIsComplaintModalOpen] = useState(false);
@@ -30,7 +32,9 @@ function Map() {
 
   const handleMarkerClick = (marker: Marker) => setSelectedMarker(marker);
   const handleClosePopup = () => setSelectedMarker(null);
-  const handleDetails = (marker: Marker) => setSelectedMarker(null);
+  const handleDetails = (marker: Marker) => {setSelectedMarker(null);
+    navigate(`/machine/${marker.id}`);
+  }
   const handleOpenComplaint = (marker: Marker) => {
     setComplaintMachine(marker);
     setIsComplaintModalOpen(true);
