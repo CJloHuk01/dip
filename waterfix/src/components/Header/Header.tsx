@@ -24,44 +24,25 @@ function Header() {
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
-    if (userStr) {
-      setCurrentUser(JSON.parse(userStr));
-    }
+    if (userStr) setCurrentUser(JSON.parse(userStr));
   }, []);
-
-  const handleOpenLogin = () => {
-    setAuthModalMode('login');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleOpenRegister = () => {
-    setAuthModalMode('register');
-    setIsAuthModalOpen(true);
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
     setCurrentUser(null);
     window.location.reload();
   };
 
-  const handleProfileClick = () => {
-    navigate('/profile');
-  };
-
   const handleAuthSuccess = () => {
     const userStr = localStorage.getItem('currentUser');
-    if (userStr) {
-      setCurrentUser(JSON.parse(userStr));
-    }
+    if (userStr) setCurrentUser(JSON.parse(userStr));
   };
 
   const getInitials = () => {
     if (!currentUser?.name) return '👤';
     const names = currentUser.name.split(' ');
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase();
-    }
+    if (names.length >= 2) return `${names[0][0]}${names[1][0]}`.toUpperCase();
     return names[0][0].toUpperCase();
   };
 
@@ -69,58 +50,37 @@ function Header() {
     <>
       <header className={styles.header}>
         <div className={styles.leftSection}>
-          <a href="/" className={styles.logo}>
-            WaterFix
-          </a>
+          <a href="/" className={styles.logo}>WaterFix</a>
         </div>
-        
+
         <div className={styles.rightSection}>
-          <button 
-            className={styles.themeToggle}
-            onClick={toggleTheme}
-            aria-label="Переключить тему"
-          >
+          <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Переключить тему">
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
 
           {currentUser ? (
             <>
-              <button 
-                className={styles.profileBtn}
-                onClick={handleProfileClick}
-              >
-                <span className={styles.avatar}>
-                  {getInitials()}
-                </span>
+              {currentUser.role === 'admin' && (
+                <button className={styles.adminBtn} onClick={() => navigate('/admin')}>
+                  ⚙️ Админ-панель
+                </button>
+              )}
+              <button className={styles.profileBtn} onClick={() => navigate('/profile')}>
+                <span className={styles.avatar}>{getInitials()}</span>
                 {currentUser.name}
               </button>
-              <button 
-                className={styles.logoutBtn}
-                onClick={handleLogout}
-              >
-                Выйти
-              </button>
+              <button className={styles.logoutBtn} onClick={handleLogout}>Выйти</button>
             </>
           ) : (
             <>
-              <button 
-                className={styles.loginBtn}
-                onClick={handleOpenLogin}
-              >
-                Войти
-              </button>
-              <button 
-                className={styles.registerBtn}
-                onClick={handleOpenRegister}
-              >
-                Регистрация
-              </button>
+              <button className={styles.loginBtn} onClick={() => { setAuthModalMode('login'); setIsAuthModalOpen(true); }}>Войти</button>
+              <button className={styles.registerBtn} onClick={() => { setAuthModalMode('register'); setIsAuthModalOpen(true); }}>Регистрация</button>
             </>
           )}
         </div>
       </header>
 
-      <AuthModal 
+      <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}

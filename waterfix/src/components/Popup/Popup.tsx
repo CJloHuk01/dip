@@ -41,15 +41,17 @@ function Popup({ marker, onClose, onComplaint }: ExtendedPopupProps) {
           >
             Подробнее
           </button>
-          <button 
-            className={styles.complaintBtn}
-            onClick={() => {
-              onComplaint(marker);
-              onClose();
-            }}
-          >
-            ⚠️ Сообщить о проблеме
-          </button>
+          {JSON.parse(localStorage.getItem('currentUser') || '{}')?.role !== 'admin' && (
+  <button 
+    className={styles.complaintBtn}
+    onClick={() => {
+      onComplaint(marker);
+      onClose();
+    }}
+  >
+    ⚠️ Сообщить о проблеме
+  </button>
+)}
         </div>
       </div>
     </div>

@@ -148,3 +148,16 @@
     padding: 16px 32px;
   }
 }
+.adminBtn {
+  padding: 8px 16px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.adminBtn:hover { background: #2d3561; }
+

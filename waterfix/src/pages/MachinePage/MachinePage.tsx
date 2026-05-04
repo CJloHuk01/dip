@@ -152,9 +152,14 @@ function MachinePage() {
                 </div>
               </div>
 
-              <button className={styles.complaintBtn} onClick={() => setIsComplaintModalOpen(true)}>
-                ⚠️ Сообщить о проблеме
-              </button>
+              {JSON.parse(localStorage.getItem('currentUser') || '{}')?.role !== 'admin' && (
+  <button 
+    className={styles.complaintBtn}
+    onClick={() => setIsComplaintModalOpen(true)}
+  >
+    ⚠️ Сообщить о проблеме
+  </button>
+)}
 
               <div className={styles.sectionTitle}>
                 Последние жалобы <span>Всего: {complaints.length}</span>
