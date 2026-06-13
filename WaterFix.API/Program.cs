@@ -1,13 +1,13 @@
-using System.Text;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Threading.RateLimiting;
 using WaterFix.API.Data;
 using WaterFix.API.Helpers;
-using System.Threading.RateLimiting;
+using WaterFix.API.Models;
 using WaterFix.API.Services;
-using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
 var fileSettings = builder.Configuration.GetSection("FileSettings").Get<FileSettings>()!;
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>()!;
+
 
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton(fileSettings);
+builder.Services.AddSingleton(emailSettings);
 
 // === Database ===
 builder.Services.AddDbContext<AppDbContext>(opt =>
@@ -26,6 +29,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 // === Services ===
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<EmailService>();
 
 // === JWT Auth ===
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

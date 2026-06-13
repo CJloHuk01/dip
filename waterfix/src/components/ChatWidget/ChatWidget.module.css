@@ -1,0 +1,134 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, white);
+  overflow: hidden;
+}
+
+.header {
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-secondary, #f8fafc);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 14px;
+  margin: auto;
+}
+
+.dateDivider {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary, #94a3b8);
+  margin: 12px 0 8px;
+  position: relative;
+}
+
+.dateDivider::before,
+.dateDivider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background: var(--border-color, #e2e8f0);
+}
+.dateDivider::before { left: 0; }
+.dateDivider::after { right: 0; }
+
+.bubble {
+  max-width: 72%;
+  padding: 8px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.mine {
+  align-self: flex-end;
+  background: #2563eb;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.theirs {
+  align-self: flex-start;
+  background: var(--bg-secondary, #f1f5f9);
+  color: var(--text-primary, #1e293b);
+  border-bottom-left-radius: 4px;
+}
+
+.bubbleText { margin-bottom: 2px; }
+
+.bubbleMeta {
+  font-size: 11px;
+  opacity: 0.7;
+  text-align: right;
+}
+
+.readMark { font-size: 11px; }
+
+.inputArea {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-primary, white);
+  align-items: flex-end;
+}
+
+.input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  font-size: 14px;
+  resize: none;
+  font-family: inherit;
+  color: var(--text-primary, #1e293b);
+  background: var(--bg-primary, white);
+  line-height: 1.4;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.sendBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.sendBtn:hover:not(:disabled) { background: #1d4ed8; }
+.sendBtn:disabled { background: #94a3b8; cursor: default; }

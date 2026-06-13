@@ -5,7 +5,7 @@ import { useTheme } from '../../hooks/useTheme';
 import styles from './Header.module.css';
 
 type AuthMode = 'login' | 'register';
-
+const API_URL = 'http://localhost:5000';
 interface User {
   id: string;
   name: string;
@@ -13,6 +13,7 @@ interface User {
   phone?: string;
   isAuth: boolean;
   role?: string;
+  avatarUrl?: string;
 }
 
 function Header() {
@@ -23,8 +24,18 @@ function Header() {
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    const userStr = localStorage.getItem('currentUser');
-    if (userStr) setCurrentUser(JSON.parse(userStr));
+    const syncUser = () => {
+      const userStr = localStorage.getItem('currentUser');
+      if (userStr) setCurrentUser(JSON.parse(userStr));
+      else setCurrentUser(null);
+    };
+    syncUser();
+    window.addEventListener('storage', syncUser);
+    window.addEventListener('userUpdated', syncUser);
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('userUpdated', syncUser);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -66,7 +77,12 @@ function Header() {
                 </button>
               )}
               <button className={styles.profileBtn} onClick={() => navigate('/profile')}>
-                <span className={styles.avatar}>{getInitials()}</span>
+                <span className={styles.avatar}>
+                  {currentUser.avatarUrl
+                    ? <img src={`${API_URL}${currentUser.avatarUrl}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    : getInitials()
+                  }
+                </span>
                 {currentUser.name}
               </button>
               <button className={styles.logoutBtn} onClick={handleLogout}>Выйти</button>

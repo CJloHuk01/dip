@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import styles from './AdminPage.module.css';
 import { machinesApi, type Machine, type Complaint } from '../../api/api';
+import AdminChat from '../../components/AdminChat/AdminChat';
+import StatsTab from '../../components/StatsTab/StatsTab';
 
 declare global { interface Window { ymaps: any; } }
 
@@ -25,7 +27,7 @@ interface User {
   phone?: string; role: string; createdAt: string;
 }
 
-type Tab = 'complaints' | 'machines' | 'users';
+type Tab = 'complaints' | 'machines' | 'users' | 'chat'| 'stats';
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -51,6 +53,16 @@ function AdminPage() {
   });
   const [machineModalMode, setMachineModalMode] = useState<'create' | 'edit'>('create');
   const [showMachineModal, setShowMachineModal] = useState(false);
+  const [machinePhotoFile, setMachinePhotoFile] = useState<File | null>(null);
+  const [machinePhotoPreview, setMachinePhotoPreview] = useState<string | null>(null);
+  const [uploadingMachinePhoto, setUploadingMachinePhoto] = useState(false);
+  const machinePhotoInputRef = useRef<HTMLInputElement>(null);
+  const handleMachinePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setMachinePhotoFile(file);
+  setMachinePhotoPreview(URL.createObjectURL(file));
+};
 
   // Карта в модалке
   const mapPickerRef = useRef<HTMLDivElement>(null);
@@ -203,6 +215,8 @@ function AdminPage() {
     setMachineForm({ address: '', latitude: '', longitude: '', workingHours: 'Круглосуточно', status: 'working', phone: '+73532', waterPrice: '5 руб/л', paymentMethods: 'cash,card', lastMaintenance: new Date().toISOString().split('T')[0] });
     setMachineModalMode('create');
     setShowMachineModal(true);
+    setMachinePhotoFile(null);
+setMachinePhotoPreview(null);
   };
 
   const openEditMachine = (m: Machine) => {
@@ -215,6 +229,8 @@ function AdminPage() {
     });
     setMachineModalMode('edit');
     setShowMachineModal(true);
+    setMachinePhotoFile(null);
+    setMachinePhotoPreview(null);
   };
 
   const handleSaveMachine = async () => {
@@ -229,11 +245,31 @@ function AdminPage() {
       paymentMethods: machineForm.paymentMethods.split(',').map(s => s.trim()),
       lastMaintenance: new Date(machineForm.lastMaintenance).toISOString(),
     };
+    let savedId: string | null = null;
     if (machineModalMode === 'create') {
-      await adminRequest('/machines', { method: 'POST', body: JSON.stringify(body) });
-    } else if (selectedMachine) {
-      await adminRequest(`/machines/${selectedMachine.id}`, { method: 'PUT', body: JSON.stringify(body) });
+    const res = await adminRequest('/machines', { method: 'POST', body: JSON.stringify(body) });
+    savedId = res.data?.id;
+  } else if (selectedMachine) {
+    await adminRequest(`/machines/${selectedMachine.id}`, { method: 'PUT', body: JSON.stringify(body) });
+    savedId = selectedMachine.id;
+  }
+
+  // Загружаем фото если выбрано
+  if (machinePhotoFile && savedId) {
+    setUploadingMachinePhoto(true);
+    try {
+      const form = new FormData();
+      form.append('file', machinePhotoFile);
+      const token = localStorage.getItem('token');
+      await fetch(`http://localhost:5000/api/machines/${savedId}/photo`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      });
+    } finally {
+      setUploadingMachinePhoto(false);
     }
+  }
     setShowMachineModal(false);
     loadMachines();
   };
@@ -292,6 +328,8 @@ function AdminPage() {
             <button className={`${styles.tab} ${tab === 'complaints' ? styles.tabActive : ''}`} onClick={() => setTab('complaints')}>📋 Заявки</button>
             <button className={`${styles.tab} ${tab === 'machines' ? styles.tabActive : ''}`} onClick={() => setTab('machines')}>💧 Водоматы</button>
             <button className={`${styles.tab} ${tab === 'users' ? styles.tabActive : ''}`} onClick={() => setTab('users')}>👥 Пользователи</button>
+            <button className={`${styles.tab} ${tab === 'chat' ? styles.tabActive : ''}`} onClick={() => setTab('chat')}>💬 Чат</button>
+            <button className={`${styles.tab} ${tab === 'stats' ? styles.tabActive : ''}`} onClick={() => setTab('stats')}>📊 Статистика</button>
           </div>
 
           {tab === 'complaints' && (
@@ -374,6 +412,16 @@ function AdminPage() {
               )}
             </div>
           )}
+          {tab === 'chat' && (
+            <div className={styles.section}>
+              <AdminChat currentUserId={JSON.parse(localStorage.getItem('currentUser') || '{}').id} />
+           </div>
+          )}
+          {tab === 'stats' && (
+            <div className={styles.section}>
+              <StatsTab />
+            </div>
+)}
         </div>
       </div>
 
@@ -465,6 +513,36 @@ function AdminPage() {
                   <input type="date" value={machineForm.lastMaintenance}
                     onChange={e => setMachineForm(prev => ({ ...prev, lastMaintenance: e.target.value }))} />
                 </div>
+                <div className={styles.formGroup}>
+                  <label>Фото водомата</label>
+                  <div
+                    onClick={() => machinePhotoInputRef.current?.click()}
+                    style={{
+                      width: '100%', height: '140px', border: '2px dashed #e2e8f0',
+                      borderRadius: '10px', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', cursor: 'pointer', overflow: 'hidden',
+                      background: '#f8fafc', position: 'relative'
+                    }}
+                  >
+                    {machinePhotoPreview ? (
+                      <img src={machinePhotoPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="preview" />
+                    ) : (
+                      <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+                        <div style={{ fontSize: '32px' }}>📷</div>
+                        <div style={{ fontSize: '13px', marginTop: '8px' }}>Нажмите чтобы выбрать фото</div>
+                        <div style={{ fontSize: '11px', marginTop: '4px' }}>JPG, PNG до 5MB</div>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={machinePhotoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    style={{ display: 'none' }}
+                    onChange={handleMachinePhotoChange}
+                  />
+                </div>
+
               </div>
 
               {/* Правая часть — карта */}
@@ -476,8 +554,8 @@ function AdminPage() {
 
             <div className={styles.modalActions}>
               <button className={styles.btnPrimary} onClick={handleSaveMachine}
-                disabled={!machineForm.latitude || !machineForm.longitude}>
-                💾 Сохранить
+                disabled={!machineForm.latitude || !machineForm.longitude || uploadingMachinePhoto}>
+                {uploadingMachinePhoto ? '⏳ Загрузка фото...' : '💾 Сохранить'}
               </button>
               <button className={styles.btnSecondary} onClick={() => setShowMachineModal(false)}>Отмена</button>
             </div>

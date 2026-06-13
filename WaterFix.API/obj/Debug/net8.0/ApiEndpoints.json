@@ -42,6 +42,68 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "WaterFix.API.Controllers.ChatController",
+    "Method": "GetDialogs",
+    "RelativePath": "api/chat/dialogs",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WaterFix.API.Controllers.ChatController",
+    "Method": "GetMessages",
+    "RelativePath": "api/chat/messages",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companionId",
+        "Type": "System.Nullable\u00601[[System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WaterFix.API.Controllers.ChatController",
+    "Method": "SendMessage",
+    "RelativePath": "api/chat/messages",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WaterFix.API.DTOs.Chat.SendMessageRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WaterFix.API.Controllers.ChatController",
+    "Method": "GetUnreadCount",
+    "RelativePath": "api/chat/unread",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "WaterFix.API.Controllers.ComplaintsController",
     "Method": "GetAll",
     "RelativePath": "api/complaints",
@@ -295,28 +357,8 @@
   },
   {
     "ContainingType": "WaterFix.API.Controllers.StatsController",
-    "Method": "ComplaintStats",
-    "RelativePath": "api/stats/complaints",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "WaterFix.API.Controllers.StatsController",
-    "Method": "MachineStats",
-    "RelativePath": "api/stats/machines",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "WaterFix.API.Controllers.StatsController",
-    "Method": "Overview",
-    "RelativePath": "api/stats/overview",
+    "Method": "GetStats",
+    "RelativePath": "api/stats",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -456,6 +498,22 @@
         "Name": "limit",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WaterFix.API.Controllers.UsersController",
+    "Method": "UpdateNotifications",
+    "RelativePath": "api/users/notifications",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WaterFix.API.DTOs.Users.UpdateNotificationsRequest",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

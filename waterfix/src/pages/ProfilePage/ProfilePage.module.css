@@ -525,4 +525,31 @@
   .complaintStatus {
     width: fit-content;
   }
+  .avatarWrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.avatarUploadBtn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  border: 2px solid white;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.avatarUploadBtn:hover { background: #1d4ed8; }
+.avatarUploadBtn:disabled { background: #94a3b8; cursor: wait; }
+
 }

@@ -16,19 +16,24 @@ public class ComplaintsController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly FileService _fileService;
+    private readonly EmailService _emailService; 
 
-    public ComplaintsController(AppDbContext db, FileService fileService)
+    public ComplaintsController(AppDbContext db, FileService fileService, EmailService emailService) 
     {
         _db = db;
         _fileService = fileService;
+        _emailService = emailService; 
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int limit = 10, [FromQuery] string? status = null, [FromQuery] Guid? machineId = null)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 10,
+        [FromQuery] string? status = null,
+        [FromQuery] Guid? machineId = null)
     {
         var query = _db.Complaints.Include(c => c.Machine).AsQueryable();
 
-        // Если запрос авторизован — применяем ролевую фильтрацию
         if (User.Identity?.IsAuthenticated == true)
         {
             var isAdmin = User.IsInRole("admin");
@@ -55,8 +60,12 @@ public class ComplaintsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var complaint = await _db.Complaints.Include(c => c.Machine).FirstOrDefaultAsync(c => c.Id == id);
-        if (complaint == null) return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
+        var complaint = await _db.Complaints
+            .Include(c => c.Machine)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (complaint == null)
+            return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
 
         var isAdmin = User.IsInRole("admin");
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -102,26 +111,82 @@ public class ComplaintsController : ControllerBase
         _db.Complaints.Add(complaint);
         await _db.SaveChangesAsync();
 
+        await UpdateMachineStatusAsync(req.MachineId);
+        await _db.SaveChangesAsync();
+
         await _db.Entry(complaint).Reference(c => c.Machine).LoadAsync();
-        return CreatedAtAction(nameof(GetById), new { id = complaint.Id }, ApiResponse<ComplaintDto>.Ok(MapDto(complaint)));
+        var admins = await _db.Users
+        .Where(u => u.Role == "admin")
+        .ToListAsync();
+
+        if (admins.Any())
+        {
+            _ = Task.Run(async () =>
+            {
+                foreach (var admin in admins)
+                {
+                    await _emailService.SendNewComplaintToAdminAsync(
+                        admin.Email,
+                        admin.Name,
+                        complaint.Id.ToString(),
+                        complaint.Machine?.Address ?? "Неизвестно",
+                        complaint.Type,
+                        complaint.Comment,
+                        userName,
+                        userPhone
+                    );
+                }
+            });
+        }
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = complaint.Id },
+            ApiResponse<ComplaintDto>.Ok(MapDto(complaint)));
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateComplaintRequest req)
     {
-        var complaint = await _db.Complaints.Include(c => c.Machine).FirstOrDefaultAsync(c => c.Id == id);
-        if (complaint == null) return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
+        var complaint = await _db.Complaints
+            .Include(c => c.Machine)
+            .Include(c => c.User) 
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (complaint == null)
+            return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
 
         var validStatuses = new[] { "new", "inProgress", "resolved", "rejected" };
         if (!validStatuses.Contains(req.Status))
             return BadRequest(ApiResponse<object>.Fail("Недопустимый статус"));
+
+        var oldStatus = complaint.Status; 
 
         complaint.Status = req.Status;
         complaint.AdminComment = req.AdminComment;
         complaint.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        await UpdateMachineStatusAsync(complaint.MachineId);
+        await _db.SaveChangesAsync();
+
+        
+        if (oldStatus != req.Status
+            && complaint.User != null
+            && complaint.User.EmailNotificationsEnabled)
+        {
+           
+            _ = Task.Run(() => _emailService.SendStatusChangedAsync(
+                complaint.User.Email,
+                complaint.User.Name,
+                complaint.Id.ToString(),
+                oldStatus,
+                req.Status,
+                req.AdminComment
+            ));
+        }
+
         return Ok(ApiResponse<ComplaintDto>.Ok(MapDto(complaint)));
     }
 
@@ -130,11 +195,18 @@ public class ComplaintsController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var complaint = await _db.Complaints.FindAsync(id);
-        if (complaint == null) return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
+        if (complaint == null)
+            return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
+
+        var machineId = complaint.MachineId;
 
         _fileService.DeleteFile(complaint.PhotoUrl);
         _db.Complaints.Remove(complaint);
         await _db.SaveChangesAsync();
+
+        await UpdateMachineStatusAsync(machineId);
+        await _db.SaveChangesAsync();
+
         return Ok(ApiResponse<object>.Ok(new { id }));
     }
 
@@ -142,7 +214,8 @@ public class ComplaintsController : ControllerBase
     public async Task<IActionResult> UploadPhoto(Guid id, IFormFile file)
     {
         var complaint = await _db.Complaints.FindAsync(id);
-        if (complaint == null) return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
+        if (complaint == null)
+            return NotFound(ApiResponse<object>.Fail("Заявка не найдена"));
 
         try
         {
@@ -160,10 +233,45 @@ public class ComplaintsController : ControllerBase
 
     private static ComplaintDto MapDto(Complaint c) => new()
     {
-        Id = c.Id, MachineId = c.MachineId, MachineAddress = c.Machine?.Address ?? "",
-        UserId = c.UserId, UserName = c.UserName, UserPhone = c.UserPhone,
-        Type = c.Type, TypeLabel = c.TypeLabel, Comment = c.Comment,
-        PhotoUrl = c.PhotoUrl, Status = c.Status, AdminComment = c.AdminComment,
-        CreatedAt = c.CreatedAt, UpdatedAt = c.UpdatedAt
+        Id = c.Id,
+        MachineId = c.MachineId,
+        MachineAddress = c.Machine?.Address ?? "",
+        UserId = c.UserId,
+        UserName = c.UserName,
+        UserPhone = c.UserPhone,
+        Type = c.Type,
+        TypeLabel = c.TypeLabel,
+        Comment = c.Comment,
+        PhotoUrl = c.PhotoUrl,
+        Status = c.Status,
+        AdminComment = c.AdminComment,
+        CreatedAt = c.CreatedAt,
+        UpdatedAt = c.UpdatedAt
     };
+
+    private async Task UpdateMachineStatusAsync(Guid machineId)
+    {
+        var machine = await _db.Machines.FindAsync(machineId);
+        if (machine == null) return;
+
+        var complaints = await _db.Complaints
+            .Where(c => c.MachineId == machineId)
+            .Select(c => c.Status)
+            .ToListAsync();
+
+        string newStatus;
+
+        if (complaints.Any(s => s == "new"))
+            newStatus = "problem";
+        else if (complaints.Any(s => s == "inProgress"))
+            newStatus = "maintenance";
+        else
+            newStatus = "working";
+
+        if (machine.Status != newStatus)
+        {
+            machine.Status = newStatus;
+            machine.UpdatedAt = DateTime.UtcNow;
+        }
+    }
 }

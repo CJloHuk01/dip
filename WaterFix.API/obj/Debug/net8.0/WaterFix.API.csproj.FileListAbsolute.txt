@@ -1,5 +1,4 @@
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.csproj.AssemblyReference.cache
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\rpswa.dswa.cache.json
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.AssemblyInfoInputs.cache
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.AssemblyInfo.cs
@@ -8,7 +7,6 @@ C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.MvcApp
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.sourcelink.json
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\appsettings.json
-C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\WaterFix.API.staticwebassets.endpoints.json
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\WaterFix.API.exe
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\WaterFix.API.deps.json
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\WaterFix.API.runtimeconfig.json
@@ -98,16 +96,9 @@ C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\ru\Microsoft.CodeAn
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\rjimswa.dswa.cache.json
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\scopedcss\bundle\WaterFix.API.styles.css
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets.build.json
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets.development.json
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\swae.build.ex.cache
-C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.5421B784.Up2Date
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.dll
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\refint\WaterFix.API.dll
@@ -115,3 +106,13 @@ C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.pdb
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\WaterFix.API.genruntimeconfig.cache
 C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\ref\WaterFix.API.dll
 C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\WaterFix.API.staticwebassets.runtime.json
+C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\MailKit.dll
+C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\MimeKit.dll
+C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Alexander\Desktop\dip\WaterFix.API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets\msbuild.WaterFix.API.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets\msbuild.build.WaterFix.API.props
+C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.WaterFix.API.props
+C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.WaterFix.API.props
+C:\Users\Alexander\Desktop\dip\WaterFix.API\obj\Debug\net8.0\staticwebassets.pack.json

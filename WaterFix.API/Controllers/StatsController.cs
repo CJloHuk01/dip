@@ -18,71 +18,95 @@ public class StatsController : ControllerBase
         _db = db;
     }
 
-    [HttpGet("overview")]
-    public async Task<IActionResult> Overview()
+    [HttpGet]
+    public async Task<IActionResult> GetStats()
     {
-        var totalMachines = await _db.Machines.CountAsync();
-        var workingMachines = await _db.Machines.CountAsync(m => m.Status == "working");
-        var maintenanceMachines = await _db.Machines.CountAsync(m => m.Status == "maintenance");
-        var problemMachines = await _db.Machines.CountAsync(m => m.Status == "problem");
+        var now = DateTime.UtcNow;
+        var monthStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var thirtyDaysAgo = now.AddDays(-30);
 
-        var totalComplaints = await _db.Complaints.CountAsync();
-        var newComplaints = await _db.Complaints.CountAsync(c => c.Status == "new");
-        var inProgressComplaints = await _db.Complaints.CountAsync(c => c.Status == "inProgress");
-        var resolvedComplaints = await _db.Complaints.CountAsync(c => c.Status == "resolved");
-        var rejectedComplaints = await _db.Complaints.CountAsync(c => c.Status == "rejected");
+        var allComplaints = await _db.Complaints
+            .Include(c => c.Machine)
+            .ToListAsync();
 
-        var totalUsers = await _db.Users.CountAsync(u => u.Role == "user");
+        // Карточки
+        var total = allComplaints.Count;
+        var newCount = allComplaints.Count(c => c.Status == "new");
+        var inProgress = allComplaints.Count(c => c.Status == "inProgress");
+        var resolvedThisMonth = allComplaints.Count(c => c.Status == "resolved" && c.UpdatedAt >= monthStart);
+
+        // Процент решённых
+        var resolved = allComplaints.Count(c => c.Status == "resolved");
+        var resolvedPercent = total > 0 ? Math.Round((double)resolved / total * 100, 1) : 0;
+
+        // Среднее время решения (в часах)
+        var resolvedWithTime = allComplaints
+            .Where(c => c.Status == "resolved")
+            .Select(c => (c.UpdatedAt - c.CreatedAt).TotalHours)
+            .ToList();
+        var avgResolutionHours = resolvedWithTime.Any()
+            ? Math.Round(resolvedWithTime.Average(), 1)
+            : 0;
+
+        // По статусам для круговой диаграммы
+        var byStatus = new[]
+        {
+            new { name = "Новые", value = newCount, color = "#3b82f6" },
+            new { name = "В работе", value = inProgress, color = "#f59e0b" },
+            new { name = "Решены", value = resolved, color = "#10b981" },
+            new { name = "Отклонены", value = allComplaints.Count(c => c.Status == "rejected"), color = "#ef4444" },
+        };
+
+        // По дням за последние 30 дней для линейного графика
+        var byDay = allComplaints
+            .Where(c => c.CreatedAt >= thirtyDaysAgo)
+            .GroupBy(c => c.CreatedAt.Date)
+            .Select(g => new
+            {
+                date = g.Key.ToString("dd.MM"),
+                count = g.Count()
+            })
+            .OrderBy(x => x.date)
+            .ToList();
+
+        // Заполняем пропущенные дни нулями
+        var filledByDay = Enumerable.Range(0, 30)
+            .Select(i => thirtyDaysAgo.Date.AddDays(i))
+            .Select(date => new
+            {
+                date = date.ToString("dd.MM"),
+                count = byDay.FirstOrDefault(d => d.date == date.ToString("dd.MM"))?.count ?? 0
+            })
+            .ToList();
+
+        // Топ водоматов
+        var topMachines = allComplaints
+            .GroupBy(c => new { c.MachineId, Address = c.Machine?.Address ?? "Неизвестно" })
+            .Select(g => new
+            {
+                address = g.Key.Address.Length > 35
+                    ? g.Key.Address.Substring(0, 35) + "..."
+                    : g.Key.Address,
+                count = g.Count()
+            })
+            .OrderByDescending(x => x.count)
+            .Take(5)
+            .ToList();
 
         return Ok(ApiResponse<object>.Ok(new
         {
-            machines = new { total = totalMachines, working = workingMachines, maintenance = maintenanceMachines, problem = problemMachines },
-            complaints = new { total = totalComplaints, @new = newComplaints, inProgress = inProgressComplaints, resolved = resolvedComplaints, rejected = rejectedComplaints },
-            users = new { total = totalUsers }
-        }));
-    }
-
-    [HttpGet("complaints")]
-    public async Task<IActionResult> ComplaintStats()
-    {
-        var byType = await _db.Complaints
-            .GroupBy(c => c.Type)
-            .Select(g => new { type = g.Key, count = g.Count() })
-            .ToListAsync();
-
-        var byStatus = await _db.Complaints
-            .GroupBy(c => c.Status)
-            .Select(g => new { status = g.Key, count = g.Count() })
-            .ToListAsync();
-
-        // По месяцам (последние 6)
-        var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6);
-        var byMonth = await _db.Complaints
-            .Where(c => c.CreatedAt >= sixMonthsAgo)
-            .GroupBy(c => new { c.CreatedAt.Year, c.CreatedAt.Month })
-            .Select(g => new { year = g.Key.Year, month = g.Key.Month, count = g.Count() })
-            .OrderBy(x => x.year).ThenBy(x => x.month)
-            .ToListAsync();
-
-        return Ok(ApiResponse<object>.Ok(new { byType, byStatus, byMonth }));
-    }
-
-    [HttpGet("machines")]
-    public async Task<IActionResult> MachineStats()
-    {
-        var topProblematic = await _db.Machines
-            .Select(m => new
+            cards = new
             {
-                id = m.Id,
-                address = m.Address,
-                status = m.Status,
-                complaintsCount = m.Complaints.Count,
-                newComplaints = m.Complaints.Count(c => c.Status == "new")
-            })
-            .OrderByDescending(x => x.complaintsCount)
-            .Take(10)
-            .ToListAsync();
-
-        return Ok(ApiResponse<object>.Ok(new { topProblematic }));
+                total,
+                newCount,
+                inProgress,
+                resolvedThisMonth,
+                resolvedPercent,
+                avgResolutionHours
+            },
+            byStatus,
+            byDay = filledByDay,
+            topMachines
+        }));
     }
 }

@@ -20,6 +20,7 @@ public class UserDto
     public string? Phone { get; set; }
     public string Role { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
+    public bool EmailNotificationsEnabled { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 

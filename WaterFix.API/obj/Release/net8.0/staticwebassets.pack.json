@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\wwwroot\\uploads\\complaints\\397f426b-e830-4b2c-8125-c7fb8663f1d7.png",
+      "PackagePath": "staticwebassets\\uploads\\complaints\\397f426b-e830-4b2c-8125-c7fb8663f1d7.png"
+    },
+    {
+      "Id": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\wwwroot\\uploads\\complaints\\97d6b43f-2923-4dae-86b5-9d6393fbbd97.png",
+      "PackagePath": "staticwebassets\\uploads\\complaints\\97d6b43f-2923-4dae-86b5-9d6393fbbd97.png"
+    },
+    {
+      "Id": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\wwwroot\\uploads\\complaints\\9b5ca2f0-e177-4dd2-a775-b0468efd4ba8.png",
+      "PackagePath": "staticwebassets\\uploads\\complaints\\9b5ca2f0-e177-4dd2-a775-b0468efd4ba8.png"
+    },
+    {
+      "Id": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\wwwroot\\uploads\\complaints\\c3092875-06bd-4506-a5e8-9d63f0ff8acc.png",
+      "PackagePath": "staticwebassets\\uploads\\complaints\\c3092875-06bd-4506-a5e8-9d63f0ff8acc.png"
+    },
+    {
+      "Id": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\wwwroot\\uploads\\complaints\\e39c68b3-6c8b-43f0-9672-bd605e0f2c3f.png",
+      "PackagePath": "staticwebassets\\uploads\\complaints\\e39c68b3-6c8b-43f0-9672-bd605e0f2c3f.png"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.WaterFix.API.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.build.WaterFix.API.props",
+      "PackagePath": "build\\WaterFix.API.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.WaterFix.API.props",
+      "PackagePath": "buildMultiTargeting\\WaterFix.API.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildTransitive.WaterFix.API.props",
+      "PackagePath": "buildTransitive\\WaterFix.API.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

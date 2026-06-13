@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import styles from './ProfilePage.module.css';
 import { usersApi, complaintsApi, type Complaint } from '../../api/api';
+import ChatWidget from '../../components/ChatWidget/ChatWidget';
+
+const API_URL = 'http://localhost:5000';
 
 interface User {
   id: string;
@@ -10,6 +13,8 @@ interface User {
   email: string;
   phone?: string;
   role?: string;
+  avatarUrl?: string;
+  emailNotificationsEnabled?: boolean;
 }
 
 function ProfilePage() {
@@ -21,6 +26,11 @@ function ProfilePage() {
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
   const [filter, setFilter] = useState<'all' | 'new' | 'inProgress' | 'resolved' | 'rejected'>('all');
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'complaints' | 'chat'>('complaints');
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [savingNotifications, setSavingNotifications] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -28,16 +38,35 @@ function ProfilePage() {
     const userData = JSON.parse(userStr);
     setUser(userData);
     setEditForm({ name: userData.name || '', phone: userData.phone || '' });
+    setEmailNotifications(userData.emailNotificationsEnabled ?? true);
 
-    // Загружаем заявки с сервера
-    const isAdmin = JSON.parse(localStorage.getItem('currentUser') || '{}')?.role === 'admin';
-const fetch = isAdmin ? complaintsApi.getAll() : complaintsApi.getMy().then(d => ({ data: d }));
-fetch
-    .then(data => setComplaints(data?.data || []))
-    .catch(err => console.error('Ошибка загрузки заявок:', err));
+    const isAdmin = userData?.role === 'admin';
+    const fetch = isAdmin
+      ? complaintsApi.getAll()
+      : complaintsApi.getMy().then(d => ({ data: d }));
+    fetch
+      .then(data => setComplaints(data?.data || []))
+      .catch(err => console.error('Ошибка загрузки заявок:', err));
   }, [navigate]);
 
   if (!user) return null;
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const res = await usersApi.uploadAvatar(file);
+      const avatarUrl = res.data?.avatarUrl;
+      setUser(prev => prev ? { ...prev, avatarUrl } : prev);
+      const current = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      localStorage.setItem('currentUser', JSON.stringify({ ...current, avatarUrl }));
+    } catch {
+      alert('Ошибка загрузки фото');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -52,13 +81,29 @@ fetch
     }
   };
 
+  const handleToggleNotifications = async (enabled: boolean) => {
+    setSavingNotifications(true);
+    try {
+      await usersApi.updateNotifications(enabled);
+      setEmailNotifications(enabled);
+      const userStr = localStorage.getItem('currentUser');
+      if (userStr) {
+        const userData = JSON.parse(userStr);
+        localStorage.setItem('currentUser', JSON.stringify({ ...userData, emailNotificationsEnabled: enabled }));
+      }
+    } catch {
+      alert('Ошибка сохранения настроек');
+    } finally {
+      setSavingNotifications(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
   const getFilteredComplaints = () => filter === 'all' ? complaints : complaints.filter(c => c.status === filter);
-
   const getStatusText = (status: string) => ({ new: 'Новая', inProgress: 'В работе', resolved: 'Решена', rejected: 'Отклонена' }[status] || status);
   const getStatusClass = (status: string) => ({ new: styles.statusNew, inProgress: styles.statusInProgress, resolved: styles.statusResolved, rejected: styles.statusRejected }[status] || '');
   const getTypeLabel = (type: string) => ({ money: '💰 Зажевало деньги', water: '💧 Не наливает воду', change: '🪙 Не даёт сдачу', screen: '📱 Сломан экран', other: '❓ Другое' }[type] || type);
@@ -70,6 +115,8 @@ fetch
     resolved: complaints.filter(c => c.status === 'resolved').length,
   };
 
+  const getInitials = () => user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
   return (
     <>
       <Header />
@@ -80,8 +127,37 @@ fetch
           <div className={styles.profileGrid}>
             <div className={styles.profileCard}>
               <div className={styles.avatarSection}>
-                <div className={styles.avatar}>
-                  {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                {/* Аватар с кнопкой загрузки */}
+                <div className={styles.avatarWrapper}>
+                  <div
+                    className={styles.avatar}
+                    onClick={() => avatarInputRef.current?.click()}
+                    style={{ cursor: 'pointer' }}
+                    title="Нажмите, чтобы изменить фото"
+                  >
+                    {user.avatarUrl ? (
+                      <img
+                        src={`${API_URL}${user.avatarUrl}`}
+                        alt="Аватар"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: '50%'
+                        }}
+                      />
+                    ) : (
+                      getInitials()
+                    )}
+                  </div>
+                 
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    style={{ display: 'none' }}
+                    onChange={handleAvatarChange}
+                  />
                 </div>
                 <div className={styles.userName}>{user.name}</div>
                 <div className={styles.userRole}>{user.role === 'admin' ? 'Администратор' : 'Пользователь'}</div>
@@ -106,6 +182,36 @@ fetch
                         <span className={styles.infoIcon}>📞</span>
                         <div className={styles.infoContent}><div className={styles.infoLabel}>Телефон</div><div className={styles.infoValue}>{user.phone || 'Не указан'}</div></div>
                       </div>
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoIcon}>🔔</span>
+                        <div className={styles.infoContent}>
+                          <div className={styles.infoLabel}>Email-уведомления</div>
+                          <div className={styles.infoValue}>
+                            <div
+                              onClick={() => !savingNotifications && handleToggleNotifications(!emailNotifications)}
+                              style={{
+                                width: '40px', height: '22px', borderRadius: '11px',
+                                background: emailNotifications ? '#2563eb' : '#d1d5db',
+                                position: 'relative', cursor: 'pointer',
+                                transition: 'background 0.2s',
+                                opacity: savingNotifications ? 0.6 : 1,
+                                display: 'inline-block'
+                              }}
+                            >
+                              <div style={{
+                                position: 'absolute', top: '3px',
+                                left: emailNotifications ? '21px' : '3px',
+                                width: '16px', height: '16px', borderRadius: '50%',
+                                background: 'white', transition: 'left 0.2s',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                              }} />
+                            </div>
+                            <span style={{ fontSize: '14px', color: '#374151', marginLeft: '8px' }}>
+                              {savingNotifications ? 'Сохранение...' : emailNotifications ? 'Включены' : 'Отключены'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <button className={styles.editBtn} onClick={() => setIsEditing(true)}>✏️ Редактировать профиль</button>
@@ -129,42 +235,69 @@ fetch
             </div>
 
             <div className={styles.complaintsCard}>
-              <div className={styles.complaintsHeader}>
-                <h2 className={styles.complaintsTitle}>Мои заявки</h2>
-                <div className={styles.complaintsFilter}>
-                  {(['all', 'new', 'inProgress', 'resolved', 'rejected'] as const).map(f => (
-                    <button key={f} className={`${styles.filterBtn} ${filter === f ? styles.active : ''}`} onClick={() => setFilter(f)}>
-                      {f === 'all' ? 'Все' : getStatusText(f)}
-                    </button>
-                  ))}
-                </div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <button onClick={() => setActiveTab('complaints')}
+                  style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                    background: activeTab === 'complaints' ? '#2563eb' : '#f1f5f9',
+                    color: activeTab === 'complaints' ? 'white' : '#374151', fontWeight: 500 }}>
+                  📋 Мои заявки
+                </button>
+                {user.role !== 'admin' && (
+                  <button onClick={() => setActiveTab('chat')}
+                    style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                      background: activeTab === 'chat' ? '#2563eb' : '#f1f5f9',
+                      color: activeTab === 'chat' ? 'white' : '#374151', fontWeight: 500 }}>
+                    💬 Чат с поддержкой
+                  </button>
+                )}
               </div>
 
-              {getFilteredComplaints().length > 0 ? (
-                <div className={styles.complaintsList}>
-                  {getFilteredComplaints().map(complaint => (
-                    <div key={complaint.id} className={styles.complaintItem} onClick={() => setSelectedComplaint(complaint)}>
-                      <div className={styles.complaintMain}>
-                        <div className={styles.complaintAddress}>{complaint.machineAddress}</div>
-                        <div className={styles.complaintMeta}>
-                          <span className={styles.complaintType}>{getTypeLabel(complaint.type)}</span>
-                          <span className={styles.complaintDate}>{formatDate(complaint.createdAt)}</span>
+              {activeTab === 'chat' && user.role !== 'admin' && (
+                <ChatWidget currentUserId={user.id} />
+              )}
+
+              {activeTab === 'complaints' && (
+                <>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                    {(['all', 'new', 'inProgress', 'resolved', 'rejected'] as const).map(f => (
+                      <button key={f} onClick={() => setFilter(f)}
+                        className={filter === f ? styles.filterActive : styles.filterBtn}>
+                        {f === 'all' ? 'Все' : getStatusText(f)}
+                      </button>
+                    ))}
+                  </div>
+
+                  {getFilteredComplaints().length > 0 ? (
+                    <div className={styles.complaintsList}>
+                      {getFilteredComplaints().map(complaint => (
+                        <div key={complaint.id} className={styles.complaintItem} onClick={() => setSelectedComplaint(complaint)}>
+                          <div className={styles.complaintMain}>
+                            <div className={styles.complaintAddress}>{complaint.machineAddress}</div>
+                            <div className={styles.complaintMeta}>
+                              <span className={styles.complaintType}>{getTypeLabel(complaint.type)}</span>
+                              <span className={styles.complaintDate}>{formatDate(complaint.createdAt)}</span>
+                            </div>
+                            <div className={styles.complaintComment}>
+                              {complaint.comment && complaint.comment.length > 50
+                                ? complaint.comment.substring(0, 50) + '...'
+                                : complaint.comment}
+                            </div>
+                          </div>
+                          <div className={styles.complaintRight}>
+                            <span className={`${styles.complaintStatus} ${getStatusClass(complaint.status)}`}>{getStatusText(complaint.status)}</span>
+                            <span className={styles.complaintArrow}>→</span>
+                          </div>
                         </div>
-                        <div className={styles.complaintComment}>{complaint.comment.length > 50 ? complaint.comment.substring(0, 50) + '...' : complaint.comment}</div>
-                      </div>
-                      <div className={styles.complaintRight}>
-                        <span className={`${styles.complaintStatus} ${getStatusClass(complaint.status)}`}>{getStatusText(complaint.status)}</span>
-                        <span className={styles.complaintArrow}>→</span>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.noComplaints}>
-                  <div className={styles.noComplaintsIcon}>📭</div>
-                  <div>У вас пока нет заявок</div>
-                  <div style={{ fontSize: '14px', marginTop: '8px' }}>Нажмите на метку на карте, чтобы сообщить о проблеме</div>
-                </div>
+                  ) : (
+                    <div className={styles.noComplaints}>
+                      <div className={styles.noComplaintsIcon}>📭</div>
+                      <div>У вас пока нет заявок</div>
+                      <div style={{ fontSize: '14px', marginTop: '8px' }}>Нажмите на метку на карте, чтобы сообщить о проблеме</div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

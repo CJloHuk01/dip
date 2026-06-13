@@ -318,3 +318,73 @@
   padding: 48px;
   color: var(--status-problem);
 }
+.machineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 0;
+}
+
+.machineStatusBadge {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--bg-secondary);
+}
+
+.machineBody {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  align-items: flex-start;
+}
+
+.machineInfo {
+  flex: 1;
+  padding: 0;
+}
+
+.machinePhotoSection {
+  width: 380px;
+  min-width: 380px;
+}
+
+.machinePhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+}
+
+.machineNoPhoto {
+  width: 100%;
+  height: 350px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .machineBody {
+    flex-direction: column;
+  }
+
+  .machinePhotoSection {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .machinePhoto,
+  .machineNoPhoto {
+    height: 280px;
+  }
+
+  .machineHeader {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

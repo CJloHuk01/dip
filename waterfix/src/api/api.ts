@@ -139,6 +139,15 @@ export const usersApi = {
   uploadAvatar: async (file: File) => {
     return uploadFile('/users/avatar', file);
   },
+  
+  updateNotifications: async (enabled: boolean) => {
+    const data = await request('/users/notifications', {
+        method: 'PATCH',
+        body: JSON.stringify({ emailNotificationsEnabled: enabled }),
+      });
+      return data.data;
+  },
+  
 };
 
 // ===== ТИПЫ =====
