@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './ChatWidget.module.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 interface Message {
   id: string;

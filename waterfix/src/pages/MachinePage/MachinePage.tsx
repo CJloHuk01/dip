@@ -30,7 +30,7 @@ function MachinePage() {
 
   useEffect(() => {
     if (!id || !machine) return;
-    fetch(`http://localhost:5000/api/complaints?machineId=${id}&limit=10`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/complaints?machineId=${id}&limit=10`)
       .then(r => r.json())
       .then(data => {
         if (data.success) {
@@ -222,7 +222,7 @@ function MachinePage() {
     <div className={styles.machinePhotoSection}>
       {machine.photoUrl ? (
         <img
-          src={`http://localhost:5000${machine.photoUrl}`}
+          src={`${import.meta.env.VITE_API_URL}${machine.photoUrl}`}
           alt="Водомат"
           className={styles.machinePhoto}
         />

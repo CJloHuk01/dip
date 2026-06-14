@@ -5,7 +5,7 @@ import { useTheme } from '../../hooks/useTheme';
 import styles from './Header.module.css';
 
 type AuthMode = 'login' | 'register';
-const API_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
 interface User {
   id: string;
   name: string;

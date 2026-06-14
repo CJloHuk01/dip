@@ -8,7 +8,7 @@ import StatsTab from '../../components/StatsTab/StatsTab';
 
 declare global { interface Window { ymaps: any; } }
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${import.meta.env.VITE_API_URL}/api`
 const getToken = () => localStorage.getItem('token');
 
 const adminRequest = async (path: string, options: RequestInit = {}) => {
@@ -261,7 +261,7 @@ setMachinePhotoPreview(null);
       const form = new FormData();
       form.append('file', machinePhotoFile);
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/machines/${savedId}/photo`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/machines/${savedId}/photo`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
@@ -434,7 +434,7 @@ setMachinePhotoPreview(null);
             <div className={styles.modalInfo}><b>Заявитель:</b> {selectedComplaint.userName || 'Аноним'}</div>
             {selectedComplaint.userPhone && <div className={styles.modalInfo}><b>Телефон:</b> {selectedComplaint.userPhone}</div>}
             {selectedComplaint.comment && <div className={styles.modalInfo}><b>Комментарий:</b> {selectedComplaint.comment}</div>}
-            {selectedComplaint.photoUrl && <img src={`http://localhost:5000${selectedComplaint.photoUrl}`} className={styles.photo} alt="фото" />}
+            {selectedComplaint.photoUrl && <img src={`${import.meta.env.VITE_API_URL}${selectedComplaint.photoUrl}`} className={styles.photo} alt="фото" />}
             <div className={styles.formGroup}>
               <label>Статус</label>
               <select value={newStatus} onChange={e => setNewStatus(e.target.value)}>

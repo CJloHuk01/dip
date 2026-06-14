@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ChatWidget from '../ChatWidget/ChatWidget';
 import styles from './AdminChat.module.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 interface Dialog {
   userId: string;
@@ -78,7 +78,7 @@ function AdminChat({ currentUserId }: AdminChatProps) {
             >
               <div className={styles.dialogAvatar}>
                 {dialog.avatarUrl
-                  ? <img src={`http://localhost:5000${dialog.avatarUrl}`} alt="" />
+                  ? <img src={`${import.meta.env.VITE_API_URL}${dialog.avatarUrl}`} alt="" />
                   : <span>{getInitials(dialog.userName)}</span>
                 }
                 {dialog.unreadCount > 0 && (

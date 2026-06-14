@@ -5,7 +5,7 @@ import styles from './ProfilePage.module.css';
 import { usersApi, complaintsApi, type Complaint } from '../../api/api';
 import ChatWidget from '../../components/ChatWidget/ChatWidget';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface User {
   id: string;
