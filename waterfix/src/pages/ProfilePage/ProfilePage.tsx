@@ -182,37 +182,38 @@ function ProfilePage() {
                         <span className={styles.infoIcon}>📞</span>
                         <div className={styles.infoContent}><div className={styles.infoLabel}>Телефон</div><div className={styles.infoValue}>{user.phone || 'Не указан'}</div></div>
                       </div>
-                      <div className={styles.infoRow}>
-                        <span className={styles.infoIcon}>🔔</span>
-                        <div className={styles.infoContent}>
-                          <div className={styles.infoLabel}>Email-уведомления</div>
-                          <div className={styles.infoValue}>
-                            <div
-                              onClick={() => !savingNotifications && handleToggleNotifications(!emailNotifications)}
-                              style={{
-                                width: '40px', height: '22px', borderRadius: '11px',
-                                background: emailNotifications ? '#2563eb' : '#d1d5db',
-                                position: 'relative', cursor: 'pointer',
-                                transition: 'background 0.2s',
-                                opacity: savingNotifications ? 0.6 : 1,
-                                display: 'inline-block'
-                              }}
-                            >
-                              <div style={{
-                                position: 'absolute', top: '3px',
-                                left: emailNotifications ? '21px' : '3px',
-                                width: '16px', height: '16px', borderRadius: '50%',
-                                background: 'white', transition: 'left 0.2s',
-                                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                              }} />
+                      {user.role !== 'admin' && (
+                        <div className={styles.infoRow}>
+                          <span className={styles.infoIcon}>🔔</span>
+                          <div className={styles.infoContent}>
+                            <div className={styles.infoLabel}>Email-уведомления</div>
+                            <div className={styles.infoValue}>
+                              <div
+                                onClick={() => !savingNotifications && handleToggleNotifications(!emailNotifications)}
+                                style={{
+                                  width: '40px', height: '22px', borderRadius: '11px',
+                                  background: emailNotifications ? '#2563eb' : '#d1d5db',
+                                  position: 'relative', cursor: 'pointer',
+                                  transition: 'background 0.2s',
+                                  opacity: savingNotifications ? 0.6 : 1,
+                                  display: 'inline-block'
+                                }}
+                              >
+                                <div style={{
+                                  position: 'absolute', top: '3px',
+                                  left: emailNotifications ? '21px' : '3px',
+                                  width: '16px', height: '16px', borderRadius: '50%',
+                                  background: 'white', transition: 'left 0.2s',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                                }} />
+                              </div>
+                              <span style={{ fontSize: '14px', color: '#374151', marginLeft: '8px' }}>
+                                {savingNotifications ? 'Сохранение...' : emailNotifications ? 'Включены' : 'Отключены'}
+                              </span>
                             </div>
-                            <span style={{ fontSize: '14px', color: '#374151', marginLeft: '8px' }}>
-                              {savingNotifications ? 'Сохранение...' : emailNotifications ? 'Включены' : 'Отключены'}
-                            </span>
                           </div>
-                        </div>
                       </div>
-                    </div>
+                    )}</div>
                   </div>
                   <button className={styles.editBtn} onClick={() => setIsEditing(true)}>✏️ Редактировать профиль</button>
                 </>

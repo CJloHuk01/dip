@@ -3020,11 +3020,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Alexander\\Desktop\\dd\\dip\\WaterFix.API\\WaterFix.API.csproj",
+      "projectUniqueName": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\WaterFix.API.csproj",
       "projectName": "WaterFix.API",
-      "projectPath": "C:\\Users\\Alexander\\Desktop\\dd\\dip\\WaterFix.API\\WaterFix.API.csproj",
+      "projectPath": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\WaterFix.API.csproj",
       "packagesPath": "C:\\Users\\Alexander\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Alexander\\Desktop\\dd\\dip\\WaterFix.API\\obj\\",
+      "outputPath": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\приложения для учебы\\VisualStudioSDK\\NuGetPackages"

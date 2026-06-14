@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|c:\\users\\alexander\\desktop\\dip\\waterfix.api\\data\\migrations\\20260613094634_initialall.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|solutionrelative:data\\migrations\\20260613094634_initialall.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|c:\\users\\alexander\\desktop\\dip\\waterfix.api\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|c:\\users\\alexander\\desktop\\dip\\waterfix.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|c:\\users\\alexander\\desktop\\dip\\waterfix.api\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
-      "RelativeMoniker": "D:0:0:{AC93D8F7-F96A-9999-8166-260B137AE05D}|WaterFix.API.csproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     }
   ],
   "DocumentGroupContainers": [
@@ -44,40 +40,23 @@
         },
         {
           "DockedHeight": 180,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "README.md",
               "DocumentMoniker": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\README.md",
               "RelativeDocumentMoniker": "README.md",
               "ToolTip": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\README.md",
               "RelativeToolTip": "README.md",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
               "WhenOpened": "2026-06-13T10:28:51.491Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20260613094634_InitialAll.cs",
-              "DocumentMoniker": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\Data\\Migrations\\20260613094634_InitialAll.cs",
-              "RelativeDocumentMoniker": "Data\\Migrations\\20260613094634_InitialAll.cs",
-              "ToolTip": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\Data\\Migrations\\20260613094634_InitialAll.cs",
-              "RelativeToolTip": "Data\\Migrations\\20260613094634_InitialAll.cs",
-              "ViewState": "AgIAAJEAAAAAAAAAAAAQwJsAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-13T10:28:37.819Z",
               "EditorCaption": ""
             },
             {
@@ -90,8 +69,11 @@
               "RelativeToolTip": "appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAABPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-06-13T10:25:54.816Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-13T10:25:54.816Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
             }
           ]
         }
