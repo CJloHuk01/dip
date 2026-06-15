@@ -33,7 +33,7 @@ public class EmailService
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls);
+            await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.SslOnConnect);
             await client.AuthenticateAsync(_settings.SenderEmail, _settings.Password);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
