@@ -130,7 +130,7 @@ public class EmailService
       <div style='margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;'>
         <p style='margin:0;font-size:13px;color:#9ca3af;'>
           Если вы хотите отключить email-уведомления, перейдите в 
-          <a href='http://localhost:5173/profile' style='color:#2563eb;'>настройки профиля</a>.
+          <a href='https://dip-pink.vercel.app/profile' style='color:#2563eb;'>настройки профиля</a>.
         </p>
       </div>
     </div>
@@ -203,7 +203,7 @@ public class EmailService
         <p style='margin:0;font-size:14px;color:#374151;'>{comment}</p>
       </div>
 
-      <a href='http://localhost:5173/admin' 
+      <a href='https://dip-pink.vercel.app/admin' 
          style='display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:8px;font-size:14px;font-weight:500;'>
         Открыть панель администратора →
       </a>
