@@ -3014,31 +3014,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Alexander\\.nuget\\packages\\": {},
-    "D:\\приложения для учебы\\VisualStudioSDK\\NuGetPackages": {}
+    "C:\\Users\\Alexander\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\WaterFix.API.csproj",
+      "projectUniqueName": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
       "projectName": "WaterFix.API",
-      "projectPath": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\WaterFix.API.csproj",
+      "projectPath": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
       "packagesPath": "C:\\Users\\Alexander\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Alexander\\Desktop\\dip\\WaterFix.API\\obj\\",
+      "outputPath": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "D:\\приложения для учебы\\VisualStudioSDK\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Alexander\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Alexander\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3116,7 +3109,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.425/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

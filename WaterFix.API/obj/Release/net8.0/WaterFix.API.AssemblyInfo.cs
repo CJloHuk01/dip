@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("5440fcd7-3adc-4a0c-995e-f314d5f4e12f")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("WaterFix.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fbacc0edf1cbdba74111c16d459b8282fa7fa5d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e65a1dcc998e4f1b25c7a557b01177812e3c2081")]
 [assembly: System.Reflection.AssemblyProductAttribute("WaterFix.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WaterFix.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
