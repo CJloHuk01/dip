@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wxdlhjLK8kY=",
+  "dgSpecHash": "bBnzqWQWNJU=",
   "success": true,
-  "projectFilePath": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
+  "projectFilePath": "D:\\projects\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Alexander\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Alexander\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",

@@ -12,6 +12,5 @@ public class User
     public bool EmailNotificationsEnabled { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
     public ICollection<Complaint> Complaints { get; set; } = new List<Complaint>();
 }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WaterFix.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e65a1dcc998e4f1b25c7a557b01177812e3c2081")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9c7cdea4e8b4f1ea64115ae2f06b7d0443bcee2e")]
 [assembly: System.Reflection.AssemblyProductAttribute("WaterFix.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WaterFix.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

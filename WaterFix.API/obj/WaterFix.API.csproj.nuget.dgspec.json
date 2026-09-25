@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj": {}
+    "D:\\projects\\dip-main\\WaterFix.API\\WaterFix.API.csproj": {}
   },
   "projects": {
-    "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj": {
+    "D:\\projects\\dip-main\\WaterFix.API\\WaterFix.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
+        "projectUniqueName": "D:\\projects\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
         "projectName": "WaterFix.API",
-        "projectPath": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
+        "projectPath": "D:\\projects\\dip-main\\WaterFix.API\\WaterFix.API.csproj",
         "packagesPath": "C:\\Users\\Alexander\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\Alexander\\Desktop\\dip-main\\WaterFix.API\\obj\\",
+        "outputPath": "D:\\projects\\dip-main\\WaterFix.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Alexander\\AppData\\Roaming\\NuGet\\NuGet.Config"
