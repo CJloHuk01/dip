@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthModal from '../AuthModal/AuthModal';
 import { useTheme } from '../../hooks/useTheme';
@@ -21,6 +21,8 @@ function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthMode>('login');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
@@ -37,6 +39,28 @@ function Header() {
       window.removeEventListener('userUpdated', syncUser);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMenuOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
@@ -83,9 +107,53 @@ function Header() {
                     : getInitials()
                   }
                 </span>
-                {currentUser.name}
+                <span className={styles.profileName}>{currentUser.name}</span>
               </button>
               <button className={styles.logoutBtn} onClick={handleLogout}>Выйти</button>
+
+              <div className={styles.menuWrap} ref={menuRef}>
+                <button
+                  type="button"
+                  className={styles.menuBtn}
+                  onClick={() => setIsMenuOpen(prev => !prev)}
+                  aria-label="Открыть меню"
+                  aria-haspopup="true"
+                  aria-expanded={isMenuOpen}
+                >
+                  ⋯
+                </button>
+
+                {isMenuOpen && (
+                  <div className={styles.mobileMenu} role="menu">
+                    {currentUser.role === 'admin' && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className={styles.menuItem}
+                        onClick={() => { setIsMenuOpen(false); navigate('/admin'); }}
+                      >
+                        ⚙️ Админ-панель
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={styles.menuItem}
+                      onClick={() => { setIsMenuOpen(false); navigate('/profile'); }}
+                    >
+                      👤 Профиль
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                      onClick={() => { setIsMenuOpen(false); handleLogout(); }}
+                    >
+                      Выйти
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>

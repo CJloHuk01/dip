@@ -98,6 +98,37 @@
   margin-top: 4px;
 }
 
+.consentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.consentLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.consentLink {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .passwordHint {
   font-size: 12px;
   color: var(--text-secondary);

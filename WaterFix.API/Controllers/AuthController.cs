@@ -30,16 +30,27 @@ public class AuthController : ControllerBase
             return BadRequest(ApiResponse<object>.Fail(string.Join(", ", ModelState.Values
                 .SelectMany(v => v.Errors).Select(e => e.ErrorMessage))));
 
+        if (!req.AcceptedTerms)
+            return BadRequest(ApiResponse<object>.Fail("Необходимо принять Пользовательское соглашение"));
+
+        if (!req.AcceptedPrivacyPolicy)
+            return BadRequest(ApiResponse<object>.Fail("Необходимо дать согласие на обработку персональных данных"));
+
         if (await _db.Users.AnyAsync(u => u.Email == req.Email.ToLower()))
             return Conflict(ApiResponse<object>.Fail("Пользователь с таким email уже существует"));
 
+        var now = DateTime.UtcNow;
         var user = new User
         {
             Name = req.Name,
             Email = req.Email.ToLower(),
             Phone = req.Phone,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
-            Role = "user"
+            Role = "user",
+            TermsAcceptedAt = now,
+            PrivacyAcceptedAt = now,
+            TermsVersion = req.TermsVersion,
+            PrivacyVersion = req.PrivacyVersion
         };
 
         _db.Users.Add(user);

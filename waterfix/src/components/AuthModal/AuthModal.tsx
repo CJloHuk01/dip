@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './AuthModal.module.css';
 import { authApi } from '../../api/api';
+import { legalRoutes } from '../../legal/legalConfig';
 
 type AuthMode = 'login' | 'register';
 
@@ -17,11 +19,13 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [consents, setConsents] = useState({ terms: false, privacy: false });
 
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
       setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+      setConsents({ terms: false, privacy: false });
       setErrors({});
       setServerError('');
     }
@@ -51,7 +55,16 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
     if (!formData.password) newErrors.password = 'Введите пароль';
     else if (formData.password.length < 6) newErrors.password = 'Пароль минимум 6 символов';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Пароли не совпадают';
+    if (!consents.terms) newErrors.terms = 'Примите Пользовательское соглашение';
+    if (!consents.privacy) newErrors.privacy = 'Дайте согласие на обработку персональных данных';
     return newErrors;
+  };
+
+  const handleConsentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setConsents(prev => ({ ...prev, [name]: checked }));
+    if (errors[name]) setErrors(prev => { const n = { ...prev }; delete n[name]; return n; });
+    setServerError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,7 +77,14 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
       if (mode === 'login') {
         await authApi.login(formData.email, formData.password);
       } else {
-        await authApi.register(formData.name, formData.email, formData.password, formData.phone || undefined);
+        await authApi.register(
+          formData.name,
+          formData.email,
+          formData.password,
+          formData.phone || undefined,
+          consents.terms,
+          consents.privacy
+        );
       }
       onClose();
       if (onAuthSuccess) onAuthSuccess();
@@ -77,6 +97,7 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
 
   const handleClose = () => {
     setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+    setConsents({ terms: false, privacy: false });
     setErrors({});
     setServerError('');
     onClose();
@@ -85,6 +106,7 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
   const switchMode = (newMode: AuthMode) => {
     setMode(newMode);
     setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+    setConsents({ terms: false, privacy: false });
     setErrors({});
     setServerError('');
   };
@@ -141,6 +163,55 @@ function AuthModal({ isOpen, onClose, initialMode = 'login', onAuthSuccess }: Au
               <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
                 className={`${styles.input} ${errors.confirmPassword ? styles.error : ''}`} placeholder="••••••••" />
               {errors.confirmPassword && <span className={styles.errorText}>{errors.confirmPassword}</span>}
+            </div>
+          )}
+
+          {mode === 'register' && (
+            <div className={styles.consentGroup}>
+              <label className={styles.consentLabel}>
+                <input
+                  type="checkbox"
+                  name="terms"
+                  checked={consents.terms}
+                  onChange={handleConsentChange}
+                  className={styles.checkbox}
+                />
+                <span>
+                  Я принимаю{' '}
+                  <Link
+                    to={legalRoutes.terms}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.consentLink}
+                  >
+                    Пользовательское соглашение
+                  </Link>
+                </span>
+              </label>
+              {errors.terms && <span className={styles.errorText}>{errors.terms}</span>}
+
+              <label className={styles.consentLabel}>
+                <input
+                  type="checkbox"
+                  name="privacy"
+                  checked={consents.privacy}
+                  onChange={handleConsentChange}
+                  className={styles.checkbox}
+                />
+                <span>
+                  Я даю согласие на{' '}
+                  <Link
+                    to={legalRoutes.privacy}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.consentLink}
+                  >
+                    обработку персональных данных
+                  </Link>{' '}
+                  в соответствии с Политикой конфиденциальности
+                </span>
+              </label>
+              {errors.privacy && <span className={styles.errorText}>{errors.privacy}</span>}
             </div>
           )}
 

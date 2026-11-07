@@ -18,6 +18,18 @@ public class RegisterRequest
     [Required(ErrorMessage = "Пароль обязателен")]
     [MinLength(6, ErrorMessage = "Пароль минимум 6 символов")]
     public string Password { get; set; } = string.Empty;
+
+    /// <summary>Пользователь принял Пользовательское соглашение.</summary>
+    public bool AcceptedTerms { get; set; }
+
+    /// <summary>Пользователь дал согласие на обработку персональных данных.</summary>
+    public bool AcceptedPrivacyPolicy { get; set; }
+
+    [MaxLength(20)]
+    public string? TermsVersion { get; set; }
+
+    [MaxLength(20)]
+    public string? PrivacyVersion { get; set; }
 }
 
 public class LoginRequest

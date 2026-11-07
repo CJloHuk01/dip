@@ -3,6 +3,8 @@ import MainPage from './pages/MainPage/MainPage';
 import MachinePage from './pages/MachinePage/MachinePage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import AdminPage from './pages/AdminPage/AdminPage';
+import LegalPage from './pages/LegalPage/LegalPage';
+import CookieConsent from './components/CookieConsent/CookieConsent';
 
 function App() {
   return (
@@ -12,7 +14,9 @@ function App() {
         <Route path="/machine/:id" element={<MachinePage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/legal/:doc" element={<LegalPage />} />
       </Routes>
+      <CookieConsent />
     </BrowserRouter>
   );
 }

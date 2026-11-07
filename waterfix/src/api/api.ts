@@ -1,3 +1,5 @@
+import { legalConfig } from '../legal/legalConfig';
+
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 // Получить токен из localStorage
@@ -48,10 +50,26 @@ export const authApi = {
     return data.data;
   },
 
-  register: async (name: string, email: string, password: string, phone?: string) => {
+  register: async (
+    name: string,
+    email: string,
+    password: string,
+    phone?: string,
+    acceptedTerms = false,
+    acceptedPrivacyPolicy = false
+  ) => {
     const data = await request('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, phone }),
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        phone,
+        acceptedTerms,
+        acceptedPrivacyPolicy,
+        termsVersion: legalConfig.docsVersion,
+        privacyVersion: legalConfig.docsVersion,
+      }),
     });
     localStorage.setItem('token', data.data.token);
     localStorage.setItem('currentUser', JSON.stringify({ ...data.data.user, isAuth: true }));

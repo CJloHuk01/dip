@@ -131,9 +131,10 @@ function ProfilePage() {
                 <div className={styles.avatarWrapper}>
                   <div
                     className={styles.avatar}
-                    onClick={() => avatarInputRef.current?.click()}
-                    style={{ cursor: 'pointer' }}
+                    onClick={() => { if (!uploadingAvatar) avatarInputRef.current?.click(); }}
+                    style={{ cursor: uploadingAvatar ? 'default' : 'pointer', position: 'relative' }}
                     title="Нажмите, чтобы изменить фото"
+                    aria-busy={uploadingAvatar}
                   >
                     {user.avatarUrl ? (
                       <img
@@ -148,6 +149,23 @@ function ProfilePage() {
                       />
                     ) : (
                       getInitials()
+                    )}
+                    {uploadingAvatar && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'rgba(0, 0, 0, 0.45)',
+                          color: '#fff',
+                          fontSize: 12,
+                          borderRadius: '50%',
+                        }}
+                      >
+                        …
+                      </span>
                     )}
                   </div>
                  
