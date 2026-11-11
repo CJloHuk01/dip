@@ -7,32 +7,28 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<User> Users => Set<User>();
+    public DbSet<Admin> Admins => Set<Admin>();
     public DbSet<Machine> Machines => Set<Machine>();
     public DbSet<Complaint> Complaints => Set<Complaint>();
-    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<ComplaintMedia> ComplaintMedia => Set<ComplaintMedia>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // User
-        modelBuilder.Entity<User>(e =>
+        modelBuilder.Entity<Admin>(e =>
         {
-            e.HasKey(u => u.Id);
-            e.HasIndex(u => u.Email).IsUnique();
-            e.Property(u => u.Role).HasDefaultValue("user");
+            e.HasKey(a => a.Id);
+            e.HasIndex(a => a.Email).IsUnique();
         });
 
-        // Machine
         modelBuilder.Entity<Machine>(e =>
         {
             e.HasKey(m => m.Id);
-            e.Property(m => m.PaymentMethods)
-                .HasColumnType("text[]");
+            e.HasIndex(m => m.PublicCode).IsUnique();
+            e.Property(m => m.PaymentMethods).HasColumnType("text[]");
         });
 
-        // Complaint
         modelBuilder.Entity<Complaint>(e =>
         {
             e.HasKey(c => c.Id);
@@ -40,16 +36,15 @@ public class AppDbContext : DbContext
                 .WithMany(m => m.Complaints)
                 .HasForeignKey(c => c.MachineId)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(c => c.User)
-                .WithMany(u => u.Complaints)
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
         });
 
-        modelBuilder.Entity<ChatMessage>(e => {
+        modelBuilder.Entity<ComplaintMedia>(e =>
+        {
             e.HasKey(m => m.Id);
-            e.HasOne(m => m.Sender).WithMany().HasForeignKey(m => m.SenderId).OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(m => m.Receiver).WithMany().HasForeignKey(m => m.ReceiverId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(m => m.Complaint)
+                .WithMany(c => c.Media)
+                .HasForeignKey(m => m.ComplaintId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

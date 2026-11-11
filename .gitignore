@@ -1,3 +1,23 @@
-WaterFix.API/.vs/WaterFix.API/FileContentIndex/0cff5b1f-011b-4768-9e7a-ca99cf555164.vsidx
-WaterFix.API/.vs/WaterFix.API/FileContentIndex/bf19b112-0caf-4102-893f-37c54bfc9231.vsidx
-WaterFix.API/.vs/WaterFix.API/FileContentIndex/46e62e8b-8a6b-46cd-822e-f5e35e3be040.vsidx
+# .NET build artifacts
+**/bin/
+**/obj/
+**/*.user
+**/.vs/
+
+# Node / Vite
+**/node_modules/
+**/dist/
+**/dist-ssr/
+*.local
+
+# Secrets and local configuration
+.env
+waterfix/.env
+WaterFix.API/appsettings.Development.json
+
+# Runtime user uploads
+WaterFix.API/wwwroot/uploads/
+WaterFix.API/App_Data/
+
+# Logs
+**/*.log

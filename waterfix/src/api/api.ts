@@ -1,202 +1,242 @@
-import { legalConfig } from '../legal/legalConfig';
+import { API_URL } from './config';
 
-const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+export class ApiError extends Error {
+  status: number;
 
-// Получить токен из localStorage
-const getToken = () => localStorage.getItem('token');
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
 
-// Базовый fetch с авторизацией
-const request = async (path: string, options: RequestInit = {}) => {
-  const token = getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
-  };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
-  const data = await res.json();
+interface Envelope<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+  pagination?: Pagination;
+}
 
-  if (!data.success) throw new Error(data.error || 'Ошибка сервера');
-  return data;
-};
+async function raw<T>(path: string, options: RequestInit = {}): Promise<Envelope<T>> {
+  const headers = new Headers(options.headers);
 
-// Для загрузки файлов (без Content-Type чтобы браузер сам поставил boundary)
-const uploadFile = async (path: string, file: File) => {
-  const token = getToken();
-  const form = new FormData();
-  form.append('file', file);
+  if (options.body && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: form,
+  const response = await fetch(`${API_URL}${path}`, {
+    credentials: 'include',
+    ...options,
+    headers,
   });
-  const data = await res.json();
-  if (!data.success) throw new Error(data.error || 'Ошибка загрузки');
-  return data;
-};
 
-// ===== AUTH =====
-export const authApi = {
-  login: async (email: string, password: string) => {
-    const data = await request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    // Сохраняем токен и пользователя
-    localStorage.setItem('token', data.data.token);
-    localStorage.setItem('currentUser', JSON.stringify({ ...data.data.user, isAuth: true }));
-    return data.data;
-  },
+  let body: Envelope<T>;
+  try {
+    body = await response.json();
+  } catch {
+    throw new ApiError('Сервер вернул некорректный ответ', response.status);
+  }
 
-  register: async (
-    name: string,
-    email: string,
-    password: string,
-    phone?: string,
-    acceptedTerms = false,
-    acceptedPrivacyPolicy = false
-  ) => {
-    const data = await request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        phone,
-        acceptedTerms,
-        acceptedPrivacyPolicy,
-        termsVersion: legalConfig.docsVersion,
-        privacyVersion: legalConfig.docsVersion,
-      }),
-    });
-    localStorage.setItem('token', data.data.token);
-    localStorage.setItem('currentUser', JSON.stringify({ ...data.data.user, isAuth: true }));
-    return data.data;
-  },
+  if (!response.ok || body.success === false) {
+    throw new ApiError(body.error || `Ошибка ${response.status}`, response.status);
+  }
 
-  me: async () => {
-    const data = await request('/auth/me');
-    return data.data;
-  },
+  return body;
+}
 
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-  },
-};
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  return (await raw<T>(path, options)).data;
+}
 
-// ===== MACHINES =====
-export const machinesApi = {
-  getAll: async (params?: { status?: string; lat?: number; lng?: number; radius?: number }) => {
-    const query = new URLSearchParams();
-    if (params?.status) query.set('status', params.status);
-    if (params?.lat) query.set('lat', String(params.lat));
-    if (params?.lng) query.set('lng', String(params.lng));
-    if (params?.radius) query.set('radius', String(params.radius));
+async function requestPaged<T>(path: string): Promise<{ data: T[]; pagination: Pagination }> {
+  const body = await raw<T[]>(path);
+  return {
+    data: body.data,
+    pagination: body.pagination ?? { page: 1, limit: body.data.length, total: body.data.length, pages: 1 },
+  };
+}
 
-    const data = await request(`/machines?${query}`);
-    return data.data as Machine[];
-  },
+// === Типы ===
 
-  getById: async (id: string) => {
-    const data = await request(`/machines/${id}`);
-    return data.data as Machine;
-  },
-
-  uploadPhoto: async (id: string, file: File) => {
-    return uploadFile(`/machines/${id}/photo`, file);
-  },
-};
-
-// ===== COMPLAINTS =====
-export const complaintsApi = {
-  create: async (complaint: {
-    machineId: string;
-    type: string;
-    typeLabel: string;
-    comment: string;
-    userName?: string;
-    userPhone?: string;
-  }) => {
-    const data = await request('/complaints', {
-      method: 'POST',
-      body: JSON.stringify(complaint),
-    });
-    return data.data;
-  },
-
-  uploadPhoto: async (id: string, file: File) => {
-    return uploadFile(`/complaints/${id}/photo`, file);
-  },
-
-  getMy: async () => {
-    const data = await request('/users/complaints');
-    return data.data;
-  },
-  getAll: async () => {
-    const data = await request('/complaints');
-    return data;
-},
-};
-
-// ===== USERS =====
-export const usersApi = {
-  updateProfile: async (name: string, phone?: string) => {
-    const data = await request('/users/profile', {
-      method: 'PUT',
-      body: JSON.stringify({ name, phone }),
-    });
-    // Обновляем localStorage
-    const current = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    localStorage.setItem('currentUser', JSON.stringify({ ...current, name, phone }));
-    return data.data;
-  },
-
-  uploadAvatar: async (file: File) => {
-    return uploadFile('/users/avatar', file);
-  },
-  
-  updateNotifications: async (enabled: boolean) => {
-    const data = await request('/users/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ emailNotificationsEnabled: enabled }),
-      });
-      return data.data;
-  },
-  
-};
-
-// ===== ТИПЫ =====
-export interface Machine {
+export interface PublicMachine {
   id: string;
+  address: string;
+  status: string;
+  photoUrl?: string | null;
+  workingHours: string;
+  phone: string;
+  waterPrice: string;
+}
+
+export interface ComplaintMedia {
+  id: string;
+  mediaType: 'photo' | 'video';
+  contentType: string;
+  sizeBytes: number;
+  url: string;
+}
+
+export interface AdminComplaint {
+  id: string;
+  machineId: string;
+  machineAddress: string;
+  machineCode?: string | null;
+  reporterName?: string | null;
+  contactType: string;
+  contactValue: string;
+  type: string;
+  typeLabel: string;
+  comment: string;
+  status: string;
+  adminComment?: string | null;
+  privacyAcceptedAt?: string | null;
+  privacyVersion?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  media: ComplaintMedia[];
+}
+
+export interface AdminMachine {
+  id: string;
+  publicCode?: string | null;
   address: string;
   latitude: number;
   longitude: number;
-  status: 'working' | 'maintenance' | 'problem';
-  photoUrl?: string;
+  status: string;
+  photoUrl?: string | null;
   workingHours: string;
   phone: string;
   paymentMethods: string[];
   waterPrice: string;
   lastMaintenance: string;
-  distance?: number;
-}
-
-export interface Complaint {
-  id: string;
-  machineId: string;
-  machineAddress: string;
-  userId?: string;
-  userName?: string;
-  userPhone?: string;
-  type: string;
-  typeLabel: string;
-  comment: string;
-  photoUrl?: string;
-  status: 'new' | 'inProgress' | 'resolved' | 'rejected';
-  adminComment?: string;
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Admin {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface StatsData {
+  cards: {
+    total: number;
+    newCount: number;
+    inProgress: number;
+    resolvedThisMonth: number;
+    resolvedPercent: number;
+    avgResolutionHours: number;
+  };
+  byStatus: { name: string; value: number; color: string }[];
+  byDay: { date: string; count: number }[];
+  topMachines: { address: string; count: number }[];
+}
+
+export interface MachinePayload {
+  address: string;
+  latitude: number;
+  longitude: number;
+  status: string;
+  workingHours: string;
+  phone: string;
+  paymentMethods: string[];
+  waterPrice: string;
+  lastMaintenance: string;
+}
+
+// === Публичный API ===
+
+export const publicApi = {
+  getMachine(code: string) {
+    return request<PublicMachine>(`/public/machines/${encodeURIComponent(code)}`);
+  },
+
+  createComplaint(formData: FormData) {
+    return request<{ id: string; message: string }>('/public/complaints', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+};
+
+// === Админский API ===
+
+export const adminApi = {
+  login(email: string, password: string) {
+    return request<Admin>('/admin/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  },
+
+  logout() {
+    return request<null>('/admin/auth/logout', { method: 'POST' });
+  },
+
+  me() {
+    return request<Admin>('/admin/auth/me');
+  },
+
+  listComplaints(status?: string) {
+    const query = status ? `?status=${encodeURIComponent(status)}&limit=100` : '?limit=100';
+    return requestPaged<AdminComplaint>(`/admin/complaints${query}`);
+  },
+
+  updateComplaint(id: string, status: string, adminComment?: string) {
+    return request<AdminComplaint>(`/admin/complaints/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, adminComment }),
+    });
+  },
+
+  deleteComplaint(id: string) {
+    return request<null>(`/admin/complaints/${id}`, { method: 'DELETE' });
+  },
+
+  listMachines() {
+    return request<AdminMachine[]>('/admin/machines');
+  },
+
+  createMachine(payload: MachinePayload) {
+    return request<AdminMachine>('/admin/machines', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateMachine(id: string, payload: MachinePayload) {
+    return request<AdminMachine>(`/admin/machines/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  deleteMachine(id: string) {
+    return request<null>(`/admin/machines/${id}`, { method: 'DELETE' });
+  },
+
+  uploadMachinePhoto(id: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request<AdminMachine>(`/admin/machines/${id}/photo`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  regenerateCode(id: string) {
+    return request<AdminMachine>(`/admin/machines/${id}/code/regenerate`, { method: 'POST' });
+  },
+
+  stats() {
+    return request<StatsData>('/admin/stats');
+  },
+};

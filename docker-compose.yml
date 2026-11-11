@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-waterfix}
+      POSTGRES_USER: ${POSTGRES_USER:-waterfix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-waterfix} -d ${POSTGRES_DB:-waterfix}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      args:
+        # Один домен: фронтенд обращается к /api этого же сайта
+        VITE_API_URL: ""
+        # Ключ Яндекс.Карт нужен только для выбора точки в админке (необязательно)
+        VITE_YANDEX_MAPS_KEY: ${VITE_YANDEX_MAPS_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB:-waterfix};Username=${POSTGRES_USER:-waterfix};Password=${POSTGRES_PASSWORD}"
+      JwtSettings__Secret: ${JWT_SECRET}
+      JwtSettings__Issuer: WaterFix
+      JwtSettings__Audience: WaterFix
+      EmailSettings__SmtpHost: ${SMTP_HOST:-smtp.gmail.com}
+      EmailSettings__SmtpPort: ${SMTP_PORT:-587}
+      EmailSettings__SenderEmail: ${SMTP_USER:-}
+      EmailSettings__SenderName: WaterFix
+      EmailSettings__Password: ${SMTP_PASSWORD:-}
+      Admin__Email: ${ADMIN_EMAIL:-}
+      Admin__Password: ${ADMIN_PASSWORD:-}
+      FileSettings__UploadPath: uploads
+      FileSettings__MaxFileSizeBytes: 10485760
+      FileSettings__MaxPhotoSizeBytes: 10485760
+      FileSettings__MaxVideoSizeBytes: 52428800
+      FileSettings__MaxPhotosPerComplaint: 5
+    volumes:
+      - uploads:/app/wwwroot/uploads
+      # Фото и видео заявок (недоступны публично, отдаются только админу)
+      - media:/app/App_Data
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  uploads:
+  media:
+  caddy_data:
+  caddy_config:

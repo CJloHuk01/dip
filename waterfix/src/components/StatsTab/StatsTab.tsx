@@ -5,36 +5,19 @@ import {
   BarChart, Bar
 } from 'recharts';
 import styles from './StatsTab.module.css';
-
-const API_URL = `${import.meta.env.VITE_API_URL}/api`;
-
-interface StatsData {
-  cards: {
-    total: number;
-    newCount: number;
-    inProgress: number;
-    resolvedThisMonth: number;
-    resolvedPercent: number;
-    avgResolutionHours: number;
-  };
-  byStatus: { name: string; value: number; color: string }[];
-  byDay: { date: string; count: number }[];
-  topMachines: { address: string; count: number }[];
-}
+import { adminApi, type StatsData } from '../../api/api';
 
 function StatsTab() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch(`${API_URL}/stats`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(r => r.json())
-      .then(data => { if (data.success) setStats(data.data); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    adminApi.stats()
+      .then(data => { if (!cancelled) setStats(data); })
+      .catch(() => { /* ошибку покажет родительская страница */ })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) return <div className={styles.loading}>Загрузка статистики...</div>;

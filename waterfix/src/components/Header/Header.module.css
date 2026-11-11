@@ -1,31 +1,48 @@
 .header {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 14px 16px;
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
 }
 
-.leftSection {
-  display: flex;
+.logo {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.logoIcon {
+  font-size: 22px;
+  line-height: 1;
 }
 
 .rightSection {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.logo {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary);
+.adminLink {
+  font-size: 13px;
+  color: var(--text-secondary);
   text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.adminLink:hover {
+  color: var(--primary);
+  background-color: var(--bg-secondary);
 }
 
 .themeToggle {
@@ -35,245 +52,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
-  transition: all 0.2s;
-  margin-right: 4px;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .themeToggle:hover {
   background-color: var(--border-color);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-.loginBtn {
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.loginBtn:hover {
-  background-color: var(--bg-secondary);
-}
-
-.registerBtn {
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: white;
-  background-color: var(--primary);
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.registerBtn:hover {
-  background-color: var(--primary-hover);
-}
-
-.profileBtn {
-  padding: 6px 16px 6px 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  background-color: var(--bg-secondary);
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s;
-}
-
-.profileBtn:hover {
-  background-color: var(--border-color);
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: var(--primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.logoutBtn {
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--status-problem);
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.logoutBtn:hover {
-  background-color: rgba(244, 67, 54, 0.1);
-}
-
-@media (min-width: 768px) {
+@media (max-width: 480px) {
   .header {
-    padding: 16px 24px;
-  }
-  
-  .logo {
-    font-size: 24px;
-  }
-  
-  .loginBtn,
-  .registerBtn,
-  .logoutBtn {
-    padding: 10px 16px;
-    font-size: 16px;
-  }
-  
-  .profileBtn {
-    padding: 6px 20px 6px 6px;
-    font-size: 16px;
-  }
-  
-  .themeToggle {
-    width: 44px;
-    height: 44px;
-    font-size: 22px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .header {
-    padding: 16px 32px;
-  }
-}
-.adminBtn {
-  padding: 8px 16px;
-  background: #1a1a2e;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.adminBtn:hover { background: #2d3561; }
-
-/* ===== Мобильное меню «…» ===== */
-.menuWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.menuBtn {
-  display: none;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 22px;
-  line-height: 1;
-}
-
-.menuBtn:hover {
-  background-color: var(--border-color);
-}
-
-.mobileMenu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 1600;
-  min-width: 210px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-}
-
-.menuItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-primary);
-  text-align: left;
-}
-
-.menuItem:hover {
-  background-color: var(--bg-secondary);
-}
-
-.menuItemDanger {
-  color: var(--status-problem);
-}
-
-@media (max-width: 767px) {
-  .header {
-    padding: 12px 14px;
-    gap: 8px;
+    padding: 12px;
   }
 
   .logo {
     font-size: 18px;
   }
 
-  .rightSection {
-    gap: 8px;
-  }
-
-  .themeToggle {
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
-    margin-right: 0;
-  }
-
-  /* Кнопки админки и выхода уезжают в меню «…» */
-  .adminBtn,
-  .logoutBtn {
+  .adminLink {
     display: none;
-  }
-
-  .menuBtn {
-    display: flex;
-  }
-
-  .profileBtn {
-    padding: 4px;
-    background-color: transparent;
-  }
-
-  .profileName {
-    display: none;
-  }
-
-  .avatar {
-    width: 34px;
-    height: 34px;
-  }
-
-  .loginBtn,
-  .registerBtn {
-    padding: 8px 10px;
-    font-size: 13px;
   }
 }
-

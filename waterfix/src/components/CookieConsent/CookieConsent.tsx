@@ -31,9 +31,9 @@ function CookieConsent() {
     <div className={styles.banner} role="dialog" aria-label="Использование файлов cookie">
       <div className={styles.content}>
         <p className={styles.text}>
-          Мы используем файлы cookie и localStorage, чтобы вы могли войти в аккаунт,
-          сохранить настройки темы и не видеть это уведомление повторно.
-          Подробнее — в{' '}
+          Мы используем только необходимые файлы cookie и localStorage: они сохраняют
+          выбранную тему и не показывают это уведомление повторно. Аналитику и рекламу
+          мы не подключаем. Подробнее — в{' '}
           <Link to={legalRoutes.cookies} className={styles.link}>Политике cookie</Link>{' '}
           и{' '}
           <Link to={legalRoutes.privacy} className={styles.link}>Политике конфиденциальности</Link>.

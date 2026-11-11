@@ -1,42 +1,79 @@
+using Microsoft.EntityFrameworkCore;
+using WaterFix.API.Helpers;
 using WaterFix.API.Models;
 
 namespace WaterFix.API.Data;
 
 public static class DbSeeder
 {
-    public static async Task SeedAsync(AppDbContext context)
+    public static async Task SeedAsync(AppDbContext context, IConfiguration config, IHostEnvironment env)
     {
-        if (context.Users.Any()) return;
+        await SeedAdminAsync(context, config, env);
+        await EnsureMachineCodesAsync(context);
+        await SeedDemoMachinesAsync(context, env);
+    }
 
-        var adminId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
+    private static async Task SeedAdminAsync(AppDbContext context, IConfiguration config, IHostEnvironment env)
+    {
+        if (await context.Admins.AnyAsync()) return;
 
-        var users = new List<User>
+        var email = config["Admin:Email"];
+        var password = config["Admin:Password"];
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            new()
+            if (!env.IsDevelopment())
             {
-                Id = adminId,
-                Name = "Администратор",
-                Email = "admin@waterfix.ru",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Role = "admin",
-                Phone = "+79001234567"
-            },
-            new()
-            {
-                Id = userId,
-                Name = "Александр",
-                Email = "sanya@mail.ru",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456"),
-                Role = "user",
-                Phone = "+79007654321"
+                Console.WriteLine(
+                    "ВНИМАНИЕ: администратор не создан. Задайте Admin__Email и Admin__Password " +
+                    "(или ADMIN_EMAIL/ADMIN_PASSWORD в docker-compose).");
+                return;
             }
-        };
+
+            email = "payturkey123231@gmail.com";
+            password = "WaterFix-2026!";
+        }
+
+        context.Admins.Add(new Admin
+        {
+            Name = "Администратор",
+            Email = email.Trim().ToLowerInvariant(),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
+        });
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task EnsureMachineCodesAsync(AppDbContext context)
+    {
+        var machines = await context.Machines
+            .Where(m => m.PublicCode == null || m.PublicCode == "")
+            .ToListAsync();
+
+        if (machines.Count == 0) return;
+
+        foreach (var machine in machines)
+        {
+            string code;
+            do
+            {
+                code = PublicCodeGenerator.Generate();
+            } while (await context.Machines.AnyAsync(m => m.PublicCode == code));
+
+            machine.PublicCode = code;
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedDemoMachinesAsync(AppDbContext context, IHostEnvironment env)
+    {
+        if (!env.IsDevelopment() || await context.Machines.AnyAsync()) return;
 
         var machines = new List<Machine>
         {
             new()
             {
+                PublicCode = PublicCodeGenerator.Generate(),
                 Address = "г.Оренбург ул.Сергея Лазо 8",
                 Latitude = 51.7608,
                 Longitude = 55.0969,
@@ -49,6 +86,7 @@ public static class DbSeeder
             },
             new()
             {
+                PublicCode = PublicCodeGenerator.Generate(),
                 Address = "г.Оренбург ул.Чкалова 24А",
                 Latitude = 51.7752,
                 Longitude = 55.1015,
@@ -61,6 +99,7 @@ public static class DbSeeder
             },
             new()
             {
+                PublicCode = PublicCodeGenerator.Generate(),
                 Address = "г.Оренбург ул.Пролетарская 288/2",
                 Latitude = 51.7680,
                 Longitude = 55.0830,
@@ -73,6 +112,7 @@ public static class DbSeeder
             },
             new()
             {
+                PublicCode = PublicCodeGenerator.Generate(),
                 Address = "г.Оренбург ул.Шевченко 225",
                 Latitude = 51.7820,
                 Longitude = 55.0920,
@@ -85,8 +125,7 @@ public static class DbSeeder
             }
         };
 
-        await context.Users.AddRangeAsync(users);
-        await context.Machines.AddRangeAsync(machines);
+        context.Machines.AddRange(machines);
         await context.SaveChangesAsync();
     }
 }

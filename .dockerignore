@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.vs/
+**/.vscode/
+**/.git/
+**/*.log
+
+# Секреты и локальные настройки
+**/.env
+waterfix/.env
+**/appsettings.Development.json
+
+# Пользовательские загрузки не должны попадать в образ
+WaterFix.API/wwwroot/uploads/
+WaterFix.API/App_Data/

@@ -4,6 +4,7 @@ public class Machine
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Address { get; set; } = string.Empty;
+    public string? PublicCode { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public string Status { get; set; } = "working";

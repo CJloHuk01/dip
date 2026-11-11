@@ -16,24 +16,24 @@ public class JwtService
         _settings = settings;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(Admin admin)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
+            new Claim(ClaimTypes.Email, admin.Email),
+            new Claim(ClaimTypes.Name, admin.Name),
+            new Claim(ClaimTypes.Role, "admin")
         };
 
         var token = new JwtSecurityToken(
             issuer: _settings.Issuer,
             audience: _settings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(_settings.ExpirationDays),
+            expires: DateTime.UtcNow.AddHours(_settings.AdminSessionHours),
             signingCredentials: creds
         );
 
