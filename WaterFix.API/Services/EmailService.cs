@@ -110,6 +110,8 @@ public class EmailService
             ? $"<div style='margin-bottom:8px;'><span style='font-size:13px;color:#6b7280;'>Вложения:</span><span style='font-size:14px;color:#374151;margin-left:8px;'>{mediaCount} файл(ов) — смотреть в админ-панели</span></div>"
             : "";
 
+        var adminUrl = $"{_settings.PublicUrl.TrimEnd('/')}/admin";
+
         var commentBlock = string.IsNullOrWhiteSpace(comment)
             ? ""
             : $@"<div style='background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:20px;'>
@@ -157,7 +159,7 @@ public class EmailService
 
       {commentBlock}
 
-      <a href='https://www.water-fix.ru/admin'
+      <a href='{adminUrl}'
          style='display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:8px;font-size:14px;font-weight:500;'>
         Открыть панель администратора →
       </a>

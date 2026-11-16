@@ -1,121 +1,131 @@
-# Развёртывание WaterFix на одном хостинге
+# Развёртывание WaterFix
 
-Сейчас проект разложен на три сервиса:
+Приложение собирается в **один Docker-образ**: React-сборка кладётся в `wwwroot` ASP.NET Core, рядом работают PostgreSQL и Caddy. Один домен — `water-fix.ru` — отдаёт и сайт, и API, и админку.
 
-- **Vercel** — фронтенд (`waterfix/`);
-- **Render** — ASP.NET Core API (`WaterFix.API/`);
-- **Neon** — PostgreSQL.
+```
+Интернет → Caddy (443, TLS) → app (ASP.NET + React) → PostgreSQL
+                                    ↓
+                        volume: фото водоматов и медиа заявок
+```
 
-Из-за этого данные не грузятся без VPN, а бесплатный PostgreSQL на Render живёт всего 30 дней. Ниже — как собрать всё в **один контейнер**: фронтенд и API раздаются с одного домена, база и фото лежат рядом, TLS настраивается автоматически.
+Ничего внешнего не нужно: ни Vercel, ни Render, ни Neon.
 
 ---
 
-## Что уже подготовлено в проекте
+## Требования к размещению
 
-| Файл | Назначение |
-|---|---|
-| `Dockerfile` | Многоступенчатая сборка: React → `wwwroot`, затем .NET 8 |
-| `docker-compose.yml` | Приложение + PostgreSQL 16 + Caddy (HTTPS) |
-| `Caddyfile` | Автоматический TLS и reverse proxy |
-| `.env.example` | Шаблон переменных окружения |
-| `waterfix/src/api/config.ts` | Если `VITE_API_URL` пуст — запросы идут на `/api` этого же домена |
-| `WaterFix.API/Program.cs` | Раздача SPA и fallback на `index.html` |
+В заявках есть телефон/почта/соцсеть и фото-видео — это персональные данные граждан РФ. По 152-ФЗ основная база должна физически находиться в России. Поэтому сервер (вместе с PostgreSQL и папкой медиа) размещается в российском дата-центре.
 
-Фронтенд больше не требует отдельного адреса API: по умолчанию он обращается к тому же домену, где открыт сайт.
+Дополнительно нужно:
+
+- уведомление в Роскомнадзор о том, что вы оператор персональных данных (подаётся бесплатно через сайт РКН);
+- опубликованная политика конфиденциальности — она уже есть в приложении.
 
 ---
 
-## Вариант 1. Российский VPS + Docker Compose (рекомендую)
+## Вариант 1. VPS в reg.ru
 
-Один сервер, один домен, всё под контролем. Подойдёт Timeweb Cloud, reg.ru, Aeza и любой другой VPS с Ubuntu.
+Домен `water-fix.ru` уже там, DNS-панель тоже — меньше всего движений.
 
-**Минимальные характеристики:** 1–2 ГБ RAM, 10–20 ГБ SSD, Ubuntu 24.04.
+### 1. Заказать VPS
 
-### 1. Купить VPS и настроить DNS
+reg.ru → **Облачные серверы** → VPS. ОС — **Ubuntu 24.04**.
 
-В панели reg.ru домен `water-fix.ru` сейчас, скорее всего, делегирован на nameservers Vercel. Проверить:
+Ориентиры по цене (ноябрь 2026, тариф + публичный IPv4):
 
-```bash
-nslookup -type=NS water-fix.ru
-```
+| Тариф | Конфигурация | Примерно в месяц |
+|---|---|---|
+| Std C1-M1-D10 | 1 vCPU · 1 ГБ RAM · 10 ГБ SSD | ~680 ₽ |
+| **Std C2-M2-D40** | **2 vCPU · 2 ГБ RAM · 40 ГБ SSD** | **~1390 ₽** |
 
-Два варианта:
+Берите **2 ГБ**: сборка образа (`npm ci` + `dotnet publish`) на 1 ГБ упирается в память. Если всё же берёте 1 ГБ — скрипт ниже создаст 2 ГБ swap, но сборка будет медленной.
 
-1. **Оставить DNS в Vercel** — в Vercel → Domains добавить/изменить записи:
-   - `A @ → <IP VPS>`
-   - `A www → <IP VPS>`
-2. **Вернуть NS на reg.ru** — в панели reg.ru сменить nameservers на `ns1.reg.ru` / `ns2.reg.ru`, затем создать те же A-записи в DNS-панели reg.ru.
+После создания сервера запишите **IP-адрес** и root-пароль (или добавьте SSH-ключ).
 
-После переезда домен из проекта Vercel можно удалить.
+### 2. Настроить DNS в reg.ru
 
-### 2. Установить Docker
+Домен делегирован на `ns1.reg.ru` / `ns2.reg.ru`, поэтому записи меняются в панели reg.ru → **Домены → water-fix.ru → DNS-серверы и зона**.
 
-```bash
-apt update && apt upgrade -y
-curl -fsSL https://get.docker.com | sh
-```
+Удалите записи, которые ведут на Vercel:
 
-### 3. Загрузить проект
+- `A @ → 216.198.79.1`
+- `CNAME www → 9d5cd9f3fd51d2f2.vercel-dns-017.com`
 
-```bash
-git clone https://github.com/CJloHuk01/dip.git /opt/waterfix
-cd /opt/waterfix
-```
+Добавьте вместо них (TTL 300):
 
-Если репозиторий станет приватным — используйте SSH-ключ или GitHub token.
+- `A @ → <IP вашего VPS>`
+- `A www → <IP вашего VPS>`
 
-### 4. Создать `.env`
+Проверить, что DNS обновился:
 
 ```bash
-cp .env.example .env
-nano .env
+nslookup water-fix.ru
+nslookup www.water-fix.ru
 ```
 
-Обязательно заполнить:
+Оба адреса должны показывать IP сервера. Caddy выпустит сертификат Let's Encrypt только после этого, поэтому DNS стоит поправить первым делом.
+
+### 3. Настроить сервер
+
+Подключитесь и запустите скрипт из репозитория:
+
+```bash
+ssh root@<IP>
+apt-get update && apt-get install -y git
+git clone --branch qr-rebuild https://github.com/CJloHuk01/dip.git /opt/waterfix
+bash /opt/waterfix/deploy/bootstrap.sh
+```
+
+`deploy/bootstrap.sh`:
+
+- ставит Docker и `docker compose`;
+- создаёт swap, если RAM меньше 2 ГБ;
+- открывает порты 22/80/443 в `ufw`;
+- клонирует/обновляет код в `/opt/waterfix`;
+- создаёт `.env` со случайными `POSTGRES_PASSWORD` и `JWT_SECRET`.
+
+Если репозиторий станет приватным — клонируйте по SSH или через токен.
+
+### 4. Заполнить `.env`
+
+```bash
+nano /opt/waterfix/.env
+```
+
+Обязательно проверить:
 
 ```env
 SITE_DOMAIN=water-fix.ru
-POSTGRES_DB=waterfix
-POSTGRES_USER=waterfix
-POSTGRES_PASSWORD=<длинный пароль>
-JWT_SECRET=<openssl rand -base64 48>
+SITE_URL=https://water-fix.ru
+ADMIN_EMAIL=admin@water-fix.ru
+ADMIN_PASSWORD=<длинный пароль>
 ```
 
-Сгенерировать пароли:
+`POSTGRES_PASSWORD` и `JWT_SECRET` уже сгенерированы скриптом.
 
-```bash
-openssl rand -hex 24      # пароль БД (без ; и кавычек)
-openssl rand -base64 48   # JWT_SECRET
-```
-
-Пароль БД лучше делать из латиницы и цифр: он подставляется в строку подключения, и символы `;` или кавычки её сломают.
-
-Почту можно оставить пустой — тогда заявки будут создаваться, но письмо админу не отправится (в логах появится предупреждение). На VPS и Amvera Gmail SMTP работает, на Render Free — нет: там исходящие порты 25/465/587 заблокированы.
+Админ создаётся **только при первом запуске**, когда таблица `Admins` пуста. Если поменять `ADMIN_EMAIL` позже, старый админ останется, новый не появится.
 
 ### 5. Запустить
 
 ```bash
+cd /opt/waterfix
 docker compose up -d --build
 docker compose logs -f app
 ```
 
-Caddy сам получит сертификат Let's Encrypt, когда DNS уже указывает на сервер и открыты порты 80/443.
+Первая сборка занимает 5–15 минут. Когда в логах появится `Now listening on: http://+:8080`, а Caddy получит сертификат, откройте:
 
-Проверка:
+- `https://water-fix.ru` — публичная страница;
+- `https://water-fix.ru/admin/login` — вход в админку.
 
-```bash
-docker compose ps
-curl -I https://water-fix.ru
-```
-
-### 6. Файрвол
+### 6. Проверить
 
 ```bash
-ufw allow 22
-ufw allow 80
-ufw allow 443
-ufw enable
+docker compose ps                  # все сервисы running
+curl -I https://water-fix.ru       # 200
 ```
+
+Дальше в админке: добавить водоматы на карте, скачать QR-коды, распечатать.
 
 ### 7. Обновления
 
@@ -125,113 +135,87 @@ git pull
 docker compose up -d --build
 ```
 
----
-
-## Вариант 2. Amvera (российский PaaS)
-
-Плюс: не нужно администрировать сервер. Минус: платно, дешевле VPS только на минимальных тарифах.
-
-- Приложение: от **170 ₽/мес** (0.1 ГБ RAM) или **290 ₽/мес** (0.5 ГБ RAM).
-- Managed PostgreSQL: от **170 ₽/мес**.
-- Есть пробный баланс, домен и бесплатный SSL.
-
-Порядок:
-
-1. Создать проект типа **Docker**.
-2. Подключить GitHub-репозиторий `CJloHuk01/dip`.
-3. Указать, что `Dockerfile` лежит в корне, порт — **8080**.
-4. Добавить managed PostgreSQL и скопировать строку подключения.
-5. Прописать переменные окружения:
-
-```env
-ConnectionStrings__DefaultConnection=Host=...;Port=5432;Database=...;Username=...;Password=...
-JwtSettings__Secret=<длинный секрет>
-JwtSettings__Issuer=WaterFix
-JwtSettings__Audience=WaterFix
-EmailSettings__SenderEmail=<gmail>
-EmailSettings__Password=<app password>
-```
-
-6. Привязать домен и включить SSL.
-
-Caddy в этом варианте не нужен: TLS и проксирование берёт на себя платформа.
-
-> Точный формат `amvera.yaml` зависит от текущей версии платформы — сверьтесь с их документацией. Для сборки достаточно корневого `Dockerfile`.
-
----
-
-## Вариант 3. Остаться на Render, но платно
-
-Можно, но невыгодно:
-
-- бесплатная БД удаляется через 30 дней;
-- бесплатный web-сервис засыпает и не имеет постоянного диска;
-- бесплатный тариф блокирует исходящую почту (порты 25/465/587);
-- PostgreSQL — от **$6/мес**, плюс persistent disk.
-
-Если платить всё равно — дешевле взять VPS и держать там всё сразу.
+Миграции применяются автоматически при старте контейнера.
 
 ---
 
 ## Почта и уведомления
 
-Письма о новых заявках отправляются через SMTP (для Gmail нужен «пароль приложения», а не обычный пароль). На VPS и Amvera порты 587/465 открыты.
+Письма о новых заявках уходят на `ADMIN_EMAIL`. Если SMTP не настроен, заявки всё равно создаются — просто без писем (в логах будет предупреждение).
 
-На **Render Free** исходящие SMTP-порты 25/465/587 заблокированы с 26.09.2025 — письма не уйдут даже с правильными данными. Варианты: платный инстанс Render или внешний сервис рассылки, который принимает письма по HTTPS API.
+### Яндекс 360 для домена (рекомендуется)
 
-В коде уведомления ставятся в очередь и отправляются в фоне (до 3 попыток). Если SMTP не настроен, приложение продолжает работать, а в логах появляется предупреждение:
+Даёт ящик вида `admin@water-fix.ru` — адрес совпадает с доменом сайта.
 
-```bash
-docker compose logs -f app | grep -i email
+1. Подключить домен `water-fix.ru` в Яндекс 360 и подтвердить владение (TXT-запись в reg.ru).
+2. Создать ящик, например `admin@water-fix.ru`.
+3. В Яндекс ID включить **пароли приложений** и создать пароль для «Почты».
+4. В `.env`:
+
+```env
+SMTP_HOST=smtp.yandex.ru
+SMTP_PORT=465
+SMTP_USER=admin@water-fix.ru
+SMTP_PASSWORD=<пароль приложения>
 ```
 
-Для домена `water-fix.ru` позже лучше завести почтовый ящик у почтового провайдера (Яндекс 360, Mail.ru для бизнеса и т.п.) и использовать его SMTP вместо Gmail.
+Не забыть добавить `MX`-записи Яндекса в reg.ru — иначе почта на домен приходить не будет.
+
+### Gmail
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=<пароль приложения Google>
+```
+
+Нужен именно «пароль приложения», обычный пароль от аккаунта не подойдёт.
+
+Проверить отправку:
+
+```bash
+docker compose logs -f app | grep -i -E "email|smtp"
+```
 
 ---
 
-## Перенос базы из Neon
-
-Neon доступен только через VPN — включите его перед командами.
-
-### Дамп
+## Бэкапы
 
 ```bash
-pg_dump "postgresql://neondb_owner:<ПАРОЛЬ>@ep-soft-fire-asgub5h7-pooler.c-4.eu-central-1.aws.neon.tech/neondb?sslmode=require" \
-  --no-owner --no-privileges -Fc -f waterfix.dump
+/opt/waterfix/deploy/backup.sh
 ```
 
-### Восстановление на сервере
+Скрипт делает `pg_dump`, архивы `App_Data` (медиа заявок) и `wwwroot/uploads` (фото водоматов) в `/var/backups/waterfix` и удаляет копии старше 14 дней.
+
+По расписанию:
 
 ```bash
-cd /opt/waterfix
-docker compose cp waterfix.dump db:/tmp/waterfix.dump
-docker compose exec db pg_restore \
-  -U waterfix -d waterfix \
-  --clean --if-exists --no-owner /tmp/waterfix.dump
+crontab -e
+# 17 3 * * * /opt/waterfix/deploy/backup.sh >> /var/log/waterfix-backup.log 2>&1
 ```
 
-Либо обычный SQL-дамп:
+Копии желательно периодически скачивать с сервера — бэкап на том же диске не спасает от потери сервера.
+
+Восстановление базы:
 
 ```bash
-pg_dump ... > waterfix.sql
-docker compose exec -T db psql -U waterfix -d waterfix < waterfix.sql
+docker compose exec -T db pg_restore -U waterfix -d waterfix --clean --if-exists < /var/backups/waterfix/db-<дата>.dump
 ```
-
-Если база нужна «с нуля», ничего восстанавливать не надо: при старте приложение само применит миграции и создаст тестовые данные (`DbSeeder`).
 
 ---
 
-## Перенос загруженных фото
+## Вариант 2. Amvera (PaaS, без администрирования сервера)
 
-Сейчас фото лежат в `WaterFix.API/wwwroot/uploads/` и, к сожалению, **закоммичены в публичный репозиторий**. После переезда их нужно положить в volume:
+Если не хочется возиться с VPS:
 
-```bash
-cd /opt/waterfix
-docker compose cp ./WaterFix.API/wwwroot/uploads/. app:/app/wwwroot/uploads/
-docker compose exec app ls -la /app/wwwroot/uploads/avatars
-```
+1. Создать проект типа **Docker**, подключить GitHub-репозиторий.
+2. Указать `Dockerfile` в корне и порт **8080**.
+3. Добавить managed PostgreSQL, скопировать строку подключения.
+4. Задать переменные окружения (см. таблицу ниже), без `SITE_DOMAIN` и `POSTGRES_*`.
+5. Привязать домен, включить SSL.
 
-Проверить, что аватары и фото заявок открываются на сайте.
+Caddy в этом случае не нужен — TLS и проксирование берёт платформа.
 
 ---
 
@@ -239,23 +223,26 @@ docker compose exec app ls -la /app/wwwroot/uploads/avatars
 
 | Переменная | Обязательна | Описание |
 |---|---|---|
-| `SITE_DOMAIN` | да (для Caddy) | Домен без `https://` |
+| `SITE_DOMAIN` | да | Домен без `https://`, для Caddy и сертификата |
+| `SITE_URL` | да | Публичный адрес, подставляется в письма |
 | `POSTGRES_DB` | да | Имя базы |
 | `POSTGRES_USER` | да | Пользователь БД |
-| `POSTGRES_PASSWORD` | да | Пароль БД |
-| `JWT_SECRET` | да | Минимум 32 символа |
-| `SMTP_HOST` / `SMTP_PORT` | нет | По умолчанию `smtp.gmail.com:587` |
-| `SMTP_USER` | нет | Gmail-адрес отправителя |
-| `SMTP_PASSWORD` | нет | App password Gmail |
-| `VITE_API_URL` | нет | Оставьте пустым при одном домене |
+| `POSTGRES_PASSWORD` | да | Пароль БД, только латиница и цифры |
+| `JWT_SECRET` | да | Минимум 32 символа, `openssl rand -base64 48` |
+| `ADMIN_EMAIL` | да | Логин админки |
+| `ADMIN_PASSWORD` | да | Пароль админки |
+| `SMTP_HOST` / `SMTP_PORT` | нет | Например `smtp.yandex.ru:465` |
+| `SMTP_USER` | нет | Адрес отправителя |
+| `SMTP_PASSWORD` | нет | Пароль приложения |
+| `VITE_YANDEX_MAPS_KEY` | нет | Ключ карт для выбора точки водомата |
 
-Для отдельного фронтенда на Vercel `VITE_API_URL` должен указывать на API, например `https://api.water-fix.ru`.
+Пароль БД не должен содержать `;`, кавычки и пробелы — он подставляется в строку подключения.
 
 ---
 
 ## Локальная разработка
 
-1. `WaterFix.API/appsettings.Development.json` уже содержит локальные настройки (Neon, JWT, SMTP). Файл в `.gitignore`.
+1. `WaterFix.API/appsettings.Development.json` содержит локальные настройки (БД, JWT, SMTP). Файл в `.gitignore`.
 2. Бэкенд:
 
 ```bash
@@ -272,68 +259,53 @@ npm run dev
 # http://localhost:5173
 ```
 
-Vite проксирует `/api` и `/uploads` на `http://localhost:5000`, поэтому `.env` больше не нужен.
+Vite проксирует `/api` и `/uploads` на `http://localhost:5000`, поэтому `waterfix/.env` не нужен — `VITE_API_URL` должен быть пустым.
 
-Neon по-прежнему требует VPN. Для полностью локальной работы можно поднять PostgreSQL в Docker:
+Локальная база в Docker:
 
 ```bash
 docker run -d --name waterfix-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=waterfix -p 5432:5432 postgres:16-alpine
 ```
 
-и указать в `appsettings.Development.json`:
+и в `appsettings.Development.json`:
 
 ```
 Host=localhost;Port=5432;Database=waterfix;Username=postgres;Password=postgres
 ```
 
+Схема создаётся одной миграцией `InitialCreate` — старая база из прежней версии не подойдёт, нужна чистая.
+
 ---
 
 ## Безопасность — сделать до публикации
 
-Репозиторий **публичный**, и в его истории уже находятся:
+Репозиторий **публичный**, и в его истории остались:
 
 - пароль от Neon;
-- app password от Gmail `payturkey123231@gmail.com`;
-- JWT-секрет;
-- фотографии пользователей (аватары и фото заявок).
+- app password от Gmail;
+- старый JWT-секрет;
+- фотографии пользователей из прежней версии.
 
-Даже после очистки текущих файлов всё это остаётся в истории Git. Поэтому:
+После переезда на свой сервер:
 
-1. **Сменить пароль Neon** в консоли Neon.
-2. **Отозвать app password Gmail** и создать новый.
-3. **Сменить `JWT_SECRET`** — после этого все пользователи разлогинятся.
+1. Сменить пароль Neon (или удалить проект) — он больше не нужен.
+2. Отозвать старый app password Gmail.
+3. Сменить `JWT_SECRET` — все админские сессии разлогинятся.
 4. Сделать репозиторий приватным **или** вычистить историю (`git filter-repo` / BFG) и force-push.
-5. Перестать отслеживать артефакты и загрузки:
-
-```bash
-git rm -r --cached WaterFix.API/bin WaterFix.API/obj WaterFix.API/wwwroot/uploads
-git rm --cached waterfix/.env
-git commit -m "Stop tracking build artifacts, uploads and local env"
-git push
-```
-
-Файлы останутся на диске — удалится только отслеживание.
-
-6. Проверить, что в новых коммитах нет `appsettings.Development.json` и `.env`.
-
-### Бэкапы
-
-```bash
-docker compose exec -T db pg_dump -U waterfix waterfix -Fc > backup-$(date +%F).dump
-```
-
-Добавьте команду в cron, например раз в сутки, и храните копии вне сервера.
+5. Проверить, что `.env` и `appsettings.Development.json` не попадают в коммиты.
 
 ---
 
 ## Чек-лист после переезда
 
-- [ ] Регистрация и вход работают
-- [ ] Загрузка аватара и фото заявки
-- [ ] Создание и редактирование заявки
-- [ ] Админ-панель, статистика, чат
-- [ ] Cookie-баннер и юридические страницы
-- [ ] Письмо о новой заявке приходит на почту админа (при ошибке смотреть логи)
-- [ ] HTTPS без предупреждений
+- [ ] `https://water-fix.ru` открывается без предупреждений сертификата
+- [ ] `www.water-fix.ru` перенаправляет на основной домен
+- [ ] `/admin/login` пускает с `ADMIN_EMAIL` / `ADMIN_PASSWORD`
+- [ ] Водоматы добавлены через карту, QR-коды скачиваются
+- [ ] Заявка с телефона по QR-ссылке создаётся, фото и видео прикрепляются
+- [ ] Медиа заявки видно в админке, без входа `/api/admin/media/...` отдаёт 401
+- [ ] Письмо о новой заявке приходит на `ADMIN_EMAIL`
 - [ ] `docker compose ps` — все сервисы `running`
+- [ ] Бэкап по cron создаётся
+- [ ] Уведомление в Роскомнадзор подано
 - [ ] Секреты сменены, репозиторий закрыт

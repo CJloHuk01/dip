@@ -1,4 +1,10 @@
-{$SITE_DOMAIN:localhost} {
+# Домен задаётся переменной SITE_DOMAIN (без https:// и без слэша).
+# Caddy обслуживает и основной домен, и www, а www перенаправляет на основной —
+# иначе cookie админской сессии на www не совпадёт с cookie на основном домене.
+{$SITE_DOMAIN:localhost}, www.{$SITE_DOMAIN:localhost} {
+	@www host www.{$SITE_DOMAIN:localhost}
+	redir @www https://{$SITE_DOMAIN:localhost}{uri} permanent
+
 	encode zstd gzip
 
 	# До 5 фото по 10 МБ + видео 50 МБ + запас

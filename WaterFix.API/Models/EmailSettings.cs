@@ -7,4 +7,7 @@ public class EmailSettings
     public string SenderEmail { get; set; } = string.Empty;
     public string SenderName { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+
+    /// <summary>Публичный адрес сайта — подставляется в ссылки внутри писем.</summary>
+    public string PublicUrl { get; set; } = "https://water-fix.ru";
 }

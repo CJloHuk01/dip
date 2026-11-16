@@ -37,6 +37,7 @@ services:
       EmailSettings__SenderEmail: ${SMTP_USER:-}
       EmailSettings__SenderName: WaterFix
       EmailSettings__Password: ${SMTP_PASSWORD:-}
+      EmailSettings__PublicUrl: ${SITE_URL:-https://water-fix.ru}
       Admin__Email: ${ADMIN_EMAIL:-}
       Admin__Password: ${ADMIN_PASSWORD:-}
       FileSettings__UploadPath: uploads
