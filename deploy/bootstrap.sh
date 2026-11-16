@@ -2,14 +2,16 @@
 # Первичная настройка VPS под WaterFix (Ubuntu 22.04/24.04, Debian 12).
 #
 # Запуск от root:
-#   REPO=https://github.com/CJloHuk01/dip.git BRANCH=qr-rebuild bash deploy/bootstrap.sh
+#   REPO=https://github.com/CJloHuk01/dip.git bash deploy/bootstrap.sh
+#   REPO=... BRANCH=qr-rebuild bash deploy/bootstrap.sh   # если нужна конкретная ветка
 #
 # Скрипт ставит Docker, создаёт swap (если мало RAM), включает файрвол,
 # клонирует репозиторий в /opt/waterfix и готовит .env со случайными паролями.
 set -euo pipefail
 
 REPO="${REPO:-https://github.com/CJloHuk01/dip.git}"
-BRANCH="${BRANCH:-main}"
+# Пусто = взять ветку по умолчанию у репозитория (или текущую, если код уже склонирован).
+BRANCH="${BRANCH:-}"
 APP_DIR="${APP_DIR:-/opt/waterfix}"
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -49,11 +51,17 @@ ufw --force enable >/dev/null
 
 echo "==> Код"
 if [ ! -d "$APP_DIR/.git" ]; then
-  git clone --branch "$BRANCH" "$REPO" "$APP_DIR"
-else
+  if [ -n "$BRANCH" ]; then
+    git clone --branch "$BRANCH" "$REPO" "$APP_DIR"
+  else
+    git clone "$REPO" "$APP_DIR"
+  fi
+elif [ -n "$BRANCH" ]; then
   git -C "$APP_DIR" fetch origin "$BRANCH"
   git -C "$APP_DIR" checkout "$BRANCH"
   git -C "$APP_DIR" pull --ff-only origin "$BRANCH"
+else
+  git -C "$APP_DIR" pull --ff-only
 fi
 cd "$APP_DIR"
 
